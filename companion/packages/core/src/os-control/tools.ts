@@ -3,6 +3,10 @@ import type { ToolDefinition } from '../tools/contracts.js';
 import { openTarget, playMedia, speakText, makeCall, runCommand, takeScreenshot, takePhoto, recordVideo, sendWhatsAppMessage } from './windows.js';
 import { normalizeSpeech } from '../cognition/style-normalizer.js';
 import { whatsappCallToolDefinition } from './whatsapp-tools.js';
+import { createSystemControlTools } from './system-control.js';
+import { createWindowControlTools } from './window-control.js';
+import { createTextInputTools } from './text-input.js';
+import { createFileOpsTools } from './file-ops.js';
 
 export function createOsOpenTool(): ToolDefinition<{ target: string }, { opened: boolean; resolved?: string; method?: string; error?: string }> {
   return {
@@ -264,5 +268,9 @@ export function createOsControlTools(): ToolDefinition<unknown, unknown>[] {
     createOsVideoTool() as ToolDefinition<unknown, unknown>,
     createOsWhatsAppTool() as ToolDefinition<unknown, unknown>,
     whatsappCallToolDefinition as unknown as ToolDefinition<unknown, unknown>,
+    ...createSystemControlTools(),
+    ...createWindowControlTools(),
+    ...createTextInputTools(),
+    ...createFileOpsTools(),
   ];
 }

@@ -63,7 +63,11 @@ export * from './os-control/windows.js';
 export * from './os-control/capability-store.js';
 export * from './os-control/uia.js';
 export * from './os-control/clipboard.js';
-export { createResearchTools, createWebResearchTool, webResearch } from './research/index.js';
+export { createSystemControlTools } from './os-control/system-control.js';
+export { createWindowControlTools } from './os-control/window-control.js';
+export { createTextInputTools } from './os-control/text-input.js';
+export { createFileOpsTools } from './os-control/file-ops.js';
+export { createResearchTools, createWebResearchTool, createWebReadPageTool, webResearch, readWebPage } from './research/index.js';
 export type {
   WebResearchInput,
   WebResearchOptions,

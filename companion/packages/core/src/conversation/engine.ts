@@ -99,7 +99,12 @@ export class DefaultConversationEngine implements ConversationEngine {
 
   deleteConversation(id: string): boolean {
     const ok = this.conversations.delete(id);
-    if (ok) this.conversationStore?.deleteConversation(id);
+    if (ok) {
+      this.conversationStore?.deleteConversation(id);
+      // Clean up any pending lock so a future conversation with the same ID
+      // (or re-creation) does not stall behind a stale gate.
+      this.conversationLocks.delete(id);
+    }
     return ok;
   }
 
@@ -289,11 +294,6 @@ export class DefaultConversationEngine implements ConversationEngine {
     userContent: string,
     signal: AbortSignal
   ): AsyncIterable<string> {
-    if (this.cognition) {
-      const reply = await this.sendMessageUnlocked(conversationId, userContent, signal);
-      yield reply.content;
-      return;
-    }
     const conv = this.conversations.get(conversationId);
     if (!conv) {
       throw new ConversationError('not_found', `Conversation ${conversationId} not found`);
@@ -335,6 +335,92 @@ export class DefaultConversationEngine implements ConversationEngine {
 
     const messages = this.buildMessages(conv, memorySnippets, systemPrompt);
 
+    // Check cache for common queries
+    const cachedResponse = this.responseCache.get(userContent, systemPrompt);
+    if (cachedResponse) {
+      // Stream cached response in chunks for UX consistency
+      for (const chunk of chunkText(cachedResponse)) {
+        if (signal.aborted) throw new ConversationError('aborted', 'Request aborted');
+        yield chunk;
+      }
+      const assistantMsg: ConversationMessage = {
+        id: this.idFactory(),
+        role: 'assistant',
+        content: cachedResponse,
+        createdAt: this.now().toISOString(),
+        model: model,
+        providerId: 'cache',
+        status: 'completed',
+      };
+      conv.messages.push(assistantMsg);
+      conv.updatedAt = assistantMsg.createdAt;
+      this.persistMessage(conv, assistantMsg);
+      return;
+    }
+
+    // Cognition path: DecisionOrchestrator produces a complete TurnDecision.
+    // We stream the final speech text in word-level chunks for a natural UX.
+    if (this.cognition) {
+      let speechText: string;
+      let responseModel: string;
+      let providerId: string | undefined;
+      try {
+        const result = await this.decide(messages, memorySnippets, signal, systemPrompt, model);
+        speechText = result.content;
+        responseModel = result.model;
+        providerId = result.providerId;
+      } catch {
+        // Fall back to direct streaming completion
+        if (signal.aborted) {
+          throw new ConversationError('aborted', 'Request aborted');
+        }
+        const fallback = await this.router.complete(
+          { model, messages, maxTokens: this.maxOutputTokens, temperature: this.temperature },
+          signal
+        );
+        speechText = fallback.content;
+        responseModel = fallback.model;
+        providerId = fallback.metadata?.providerId as string | undefined;
+      }
+
+      this.responseCache.set(userContent, speechText, systemPrompt);
+      this.degraded = false;
+
+      // Yield speech text in word-level chunks
+      let accumulated = '';
+      for (const chunk of chunkText(speechText)) {
+        if (signal.aborted) throw new ConversationError('aborted', 'Request aborted');
+        accumulated += chunk;
+        yield chunk;
+      }
+
+      const assistantMsg: ConversationMessage = {
+        id: this.idFactory(),
+        role: 'assistant',
+        content: accumulated,
+        createdAt: this.now().toISOString(),
+        model: responseModel,
+        providerId,
+        status: 'completed',
+      };
+      conv.messages.push(assistantMsg);
+      conv.updatedAt = assistantMsg.createdAt;
+      this.persistMessage(conv, assistantMsg);
+
+      if (episodeId && this.episodeLogger) {
+        this.episodeLogger.recordMessage(episodeId, assistantMsg);
+        this.episodeLogger.endEpisode(episodeId, 'success');
+      }
+
+      if (this.memoryRecorder) {
+        void this.memoryRecorder(userContent, accumulated).catch(() => {
+          /* ignore */
+        });
+      }
+      return;
+    }
+
+    // Non-cognition path: stream directly from the provider
     let accumulated = '';
     try {
       const stream = this.router.stream(
@@ -352,12 +438,12 @@ export class DefaultConversationEngine implements ConversationEngine {
       }
     } catch (error) {
       this.degraded = true;
-      
+
       // End episode with failure outcome
       if (episodeId && this.episodeLogger) {
         this.episodeLogger.endEpisode(episodeId, 'failed');
       }
-      
+
       if (signal.aborted) {
         throw new ConversationError('aborted', 'Request aborted');
       }
@@ -372,6 +458,8 @@ export class DefaultConversationEngine implements ConversationEngine {
     }
 
     this.degraded = false;
+
+    this.responseCache.set(userContent, accumulated, systemPrompt);
 
     const assistantMsg: ConversationMessage = {
       id: this.idFactory(),
@@ -502,5 +590,25 @@ export class DefaultConversationEngine implements ConversationEngine {
     if (hooks.retrieve) this.memoryRetriever = hooks.retrieve;
     if (hooks.record) this.memoryRecorder = hooks.record;
   }
+}
+
+/**
+ * Split text into streamable chunks (word-level with trailing whitespace preserved).
+ * Yields small pieces suitable for incremental UI rendering.
+ */
+function* chunkText(text: string): Generator<string> {
+  if (!text) return;
+  // Split on word boundaries while preserving whitespace
+  const parts = text.split(/(\s+)/);
+  let buf = '';
+  for (const part of parts) {
+    buf += part;
+    // Flush when buffer reaches ~40 chars or contains a sentence boundary
+    if (buf.length >= 40 || /[.!?]\s*$/.test(buf)) {
+      yield buf;
+      buf = '';
+    }
+  }
+  if (buf) yield buf;
 }
 

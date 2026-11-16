@@ -2,7 +2,7 @@
  * Response Cache
  *
  * Caches common responses to reduce latency and provider load.
- * Uses LRU eviction with configurable TTL.
+ * Uses LRU eviction with configurable TTL and byte-size cap.
  */
 
 export interface CacheEntry {
@@ -11,14 +11,31 @@ export interface CacheEntry {
   hitCount: number;
 }
 
+const DEFAULT_MAX_BYTES = 2 * 1024 * 1024; // 2 MB total cache budget
+
 export class ResponseCache {
   private cache = new Map<string, CacheEntry>();
   private readonly maxEntries: number;
   private readonly ttlMs: number;
+  private readonly maxBytes: number;
+  private currentBytes = 0;
 
-  constructor(maxEntries = 100, ttlMs = 5 * 60 * 1000) {
+  constructor(maxEntries = 100, ttlMs = 5 * 60 * 1000, maxBytes = DEFAULT_MAX_BYTES) {
     this.maxEntries = maxEntries;
     this.ttlMs = ttlMs;
+    this.maxBytes = maxBytes;
+  }
+
+  /**
+   * Estimate the byte size of a string (UTF-16 chars ≈ 2 bytes, ASCII ≈ 1).
+   * Uses Buffer.byteLength when available for accuracy, falls back to length*2.
+   */
+  private byteSize(s: string): number {
+    try {
+      return Buffer.byteLength(s, 'utf8');
+    } catch {
+      return s.length * 2;
+    }
   }
 
   /**
@@ -43,7 +60,7 @@ export class ResponseCache {
     const age = now - entry.timestamp;
 
     if (age > this.ttlMs) {
-      this.cache.delete(key);
+      this.removeEntry(key);
       return null;
     }
 
@@ -51,14 +68,34 @@ export class ResponseCache {
     return entry.response;
   }
 
+  private removeEntry(key: string): void {
+    const entry = this.cache.get(key);
+    if (entry) {
+      this.currentBytes -= this.byteSize(entry.response);
+      this.cache.delete(key);
+    }
+  }
+
   /**
    * Store response in cache
    */
   set(userMessage: string, response: string, systemPrompt?: string): void {
     const key = this.generateKey(userMessage, systemPrompt);
+    const responseBytes = this.byteSize(response);
 
-    // Evict oldest if at capacity
-    if (this.cache.size >= this.maxEntries) {
+    // If a single response exceeds the byte budget, don't cache it
+    if (responseBytes > this.maxBytes) return;
+
+    // Remove existing entry if updating
+    if (this.cache.has(key)) {
+      this.removeEntry(key);
+    }
+
+    // Evict by LRU (oldest timestamp) until under both count and byte limits
+    while (
+      (this.cache.size >= this.maxEntries || this.currentBytes + responseBytes > this.maxBytes) &&
+      this.cache.size > 0
+    ) {
       let oldestKey: string | null = null;
       let oldestTimestamp = Infinity;
 
@@ -70,15 +107,18 @@ export class ResponseCache {
       }
 
       if (oldestKey) {
-        this.cache.delete(oldestKey);
+        this.removeEntry(oldestKey);
+      } else {
+        break;
       }
     }
 
     this.cache.set(key, {
       response,
       timestamp: Date.now(),
-      hitCount: 0
+      hitCount: 0,
     });
+    this.currentBytes += responseBytes;
   }
 
   /**
@@ -86,12 +126,13 @@ export class ResponseCache {
    */
   clear(): void {
     this.cache.clear();
+    this.currentBytes = 0;
   }
 
   /**
    * Get cache statistics
    */
-  getStats(): { size: number; hits: number; entries: number } {
+  getStats(): { size: number; hits: number; entries: number; bytes: number } {
     let totalHits = 0;
     for (const entry of this.cache.values()) {
       totalHits += entry.hitCount;
@@ -100,7 +141,8 @@ export class ResponseCache {
     return {
       size: this.cache.size,
       hits: totalHits,
-      entries: this.cache.size
+      entries: this.cache.size,
+      bytes: this.currentBytes,
     };
   }
 
@@ -111,7 +153,7 @@ export class ResponseCache {
     const now = Date.now();
     for (const [key, entry] of this.cache.entries()) {
       if (now - entry.timestamp > this.ttlMs) {
-        this.cache.delete(key);
+        this.removeEntry(key);
       }
     }
   }

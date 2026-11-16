@@ -1,8 +1,21 @@
 # Gap List (v3 brief)
 
 Baseline: 2026-10-29. Graded against `docs/REQUIREMENTS.md`.
-Latest verification: `npm.cmd run verify` from `companion/` passed 0 lint errors/warnings, clean TypeScript, 49 test files / 311 tests, and both builds. See `docs/VERIFICATION_LOG.md` section 33.
+Latest verification: 2026-11-16 — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 66 test files / 515 tests, and both builds. See `docs/PROJECT_STATE.md` for the production readiness sprint.
 Status values: `FIXED` means code + verification exist for the stated slice; `PARTIAL` means some behavior is present but the acceptance check is not fully met; `OPEN` means no implementation.
+
+## 2026-11-16 Update — Full OS Control
+
+The following capabilities were added, closing several gaps around OS automation coverage:
+
+- **System control tools** (volume, brightness, media keys, lock, sleep) — 6 new tools with PowerShell backing
+- **Window/process management** (close, switch, minimize, maximize, list, kill) — 6 new tools with Win32 API integration
+- **Text input & clipboard** (type text, send keys, clipboard read/write/clear) — 5 new tools with SendKeys and native clipboard
+- **File operations** (list, search, copy, move, delete, create folder) — 6 new tools using Node.js fs
+- **Web page reading** (`web.readPage`) — fetches URL, strips HTML to speakable text, marked `untrusted_content`
+- **WhatsApp calling** (`whatsapp.call`) — voice/video call by contact name
+- **NL command router** — extended with ~30 natural language patterns covering all new tools
+- **Conversation engine** — cognition streaming support, lock cleanup on delete, response cache byte-size eviction
 
 ## Critical
 

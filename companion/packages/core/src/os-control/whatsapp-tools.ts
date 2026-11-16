@@ -92,7 +92,7 @@ export const whatsappCallToolDefinition = {
   outputSchema: whatsappCallOutputSchema,
   execute: whatsappCallTool,
   riskClass: 3 as const, // Requires confirmation per policy
-  requiredPermissions: ['whatsapp.call'] as const,
+  requiredPermissions: ['whatsapp.call'],
   dataClassification: 'personal' as const,
   reversible: false as const,
   requiresConfirmation: true as const,
@@ -104,8 +104,5 @@ export const whatsappCallToolDefinition = {
     // Call is successful if status is ringing or connected
     return output.success && (output.status === 'ringing' || output.status === 'connected');
   },
-  audit: {
-    category: 'whatsapp',
-    sensitivity: 'medium',
-  },
+  audit: 'metadata' as const,
 };

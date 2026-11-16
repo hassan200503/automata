@@ -567,14 +567,19 @@ function normalizeMemoryProfile(profile: any): any {
   const p = profile && typeof profile === 'object' ? { ...profile } : {};
   const rawNotes = Array.isArray(p.notes) ? p.notes : [];
   const now = Date.now();
-  const notes = rawNotes.map((n: any) => {
-    if (typeof n === 'string') return { id: Math.random().toString(36).slice(2), note: n, confidence: 0.6, createdAt: new Date().toISOString(), lastUsedAt: new Date().toISOString() };
-    return { ...n, id: n.id || Math.random().toString(36).slice(2), confidence: typeof n.confidence === 'number' ? n.confidence : 0.6, createdAt: n.createdAt || new Date().toISOString(), lastUsedAt: n.lastUsedAt || new Date().toISOString() };
-  }).filter((n: any) => {
-    if (n.expiresAt && new Date(n.expiresAt).getTime() < now) return false;
-    const ageDays = (now - new Date(n.createdAt).getTime()) / 86400000;
+  // First, normalize and compute decay in a map pass (no side-effects in filter).
+  const withDecay = rawNotes.map((n: any) => {
+    const note = typeof n === 'string'
+      ? { id: randomUUID(), note: n, confidence: 0.6, createdAt: new Date().toISOString(), lastUsedAt: new Date().toISOString() }
+      : { ...n, id: n.id || randomUUID(), confidence: typeof n.confidence === 'number' ? n.confidence : 0.6, createdAt: n.createdAt || new Date().toISOString(), lastUsedAt: n.lastUsedAt || new Date().toISOString() };
+    const ageDays = (now - new Date(note.createdAt).getTime()) / 86400000;
     const decay = Math.floor(ageDays / 30) * 0.05;
-    n.confidence = Math.max(0.1, (n.confidence ?? 0.6) - decay);
+    note.confidence = Math.max(0.1, (note.confidence ?? 0.6) - decay);
+    return note;
+  });
+  // Then filter in a separate pass — no mutation inside the predicate.
+  const notes = withDecay.filter((n: any) => {
+    if (n.expiresAt && new Date(n.expiresAt).getTime() < now) return false;
     return n.confidence >= 0.1;
   });
   p.notes = notes;
@@ -597,6 +602,7 @@ const GRANTABLE_PERMISSIONS = [
   'os.telephony',
   'os.exec',
   'email.send',
+  'whatsapp.call',
 ] as const;
 
 function readEmailSettings(): Record<string, unknown> {
@@ -1342,6 +1348,149 @@ function registerIpc(): void {
     else if (lower.includes('screenshot') || lower.includes('capture screen') || lower.includes('screen capture')) {
       toolName = 'os.screenshot'; input = {};
     }
+    // Volume control
+    else if (/\b(set\s+)?volume\b/i.test(lower) && /\d/.test(lower)) {
+      const m = lower.match(/(\d+)/);
+      toolName = 'os.volume'; input = { level: m ? Number(m[1]) : 50 };
+    }
+    else if (lower.includes('mute')) {
+      toolName = 'os.mute'; input = { mute: true };
+    }
+    else if (lower.includes('unmute')) {
+      toolName = 'os.mute'; input = { mute: false };
+    }
+    else if (lower.includes('volume up') || lower.includes('volume down')) {
+      toolName = 'os.mediaKey'; input = { key: lower.includes('up') ? 'volume_up' : 'volume_down' };
+    }
+    // Media keys
+    else if (lower === 'pause' || lower === 'play' || lower === 'play pause' || lower.includes('play/pause')) {
+      toolName = 'os.mediaKey'; input = { key: 'play_pause' };
+    }
+    else if (lower.includes('next track') || lower.includes('next song') || lower === 'next') {
+      toolName = 'os.mediaKey'; input = { key: 'next_track' };
+    }
+    else if (lower.includes('previous track') || lower.includes('prev track') || lower.includes('previous song') || lower === 'previous') {
+      toolName = 'os.mediaKey'; input = { key: 'prev_track' };
+    }
+    // Brightness
+    else if (/\b(set\s+)?brightness\b/i.test(lower) && /\d/.test(lower)) {
+      const m = lower.match(/(\d+)/);
+      toolName = 'os.brightness'; input = { level: m ? Number(m[1]) : 50 };
+    }
+    // Lock / sleep
+    else if (lower.includes('lock screen') || lower === 'lock' || lower === 'lock pc') {
+      toolName = 'os.lockScreen'; input = {};
+    }
+    else if (lower.includes('go to sleep') || lower === 'sleep' || lower.includes('put pc to sleep')) {
+      toolName = 'os.sleep'; input = {};
+    }
+    // Close / switch app
+    else if (lower.startsWith('close ') || lower.startsWith('quit ') || lower.startsWith('kill ')) {
+      const proc = clean.split(/\s+/).slice(1).join(' ').trim();
+      if (proc) {
+        toolName = 'os.closeApp'; input = { process: proc };
+      }
+    }
+    else if (lower.startsWith('switch to ') || lower.startsWith('focus ')) {
+      const proc = clean.split(/\s+/).slice(lower.startsWith('switch to') ? 2 : 1).join(' ').trim();
+      if (proc) {
+        toolName = 'os.switchApp'; input = { process: proc };
+      }
+    }
+    else if (lower === 'minimize' || lower.includes('minimize window')) {
+      toolName = 'os.minimize'; input = {};
+    }
+    else if (lower === 'maximize' || lower.includes('maximize window')) {
+      toolName = 'os.maximize'; input = {};
+    }
+    else if (lower.includes('list processes') || lower.includes('running processes') || lower.includes('what is running')) {
+      toolName = 'os.listProcesses'; input = {};
+    }
+    // Type text
+    else if (lower.startsWith('type ') || lower.startsWith('write text ')) {
+      const text = trimmed.slice(lower.startsWith('type ') ? 5 : 11).trim();
+      if (text) {
+        toolName = 'os.typeText'; input = { text };
+      }
+    }
+    // Send keys
+    else if (lower.startsWith('press ') || lower.startsWith('send key')) {
+      const keys = clean.split(/\s+/).slice(1).join(' ').trim().toLowerCase();
+      if (keys) {
+        toolName = 'os.sendKeys'; input = { keys };
+      }
+    }
+    // Clipboard
+    else if (lower.includes('clipboard read') || lower === 'read clipboard' || lower === 'paste clipboard') {
+      toolName = 'os.clipboardRead'; input = {};
+    }
+    else if (lower.startsWith('copy to clipboard') || lower.startsWith('set clipboard')) {
+      const text = trimmed.replace(/^copy to clipboard\s*/i, '').replace(/^set clipboard\s*/i, '').trim();
+      if (text) {
+        toolName = 'os.clipboardWrite'; input = { text };
+      }
+    }
+    else if (lower === 'clear clipboard') {
+      toolName = 'os.clipboardClear'; input = {};
+    }
+    // File operations
+    else if (lower.startsWith('list files') || lower.startsWith('list folder') || lower.startsWith('ls ')) {
+      const dirPath = clean.split(/\s+/).slice(2).join(' ').trim();
+      if (dirPath) {
+        toolName = 'os.listFiles'; input = { path: dirPath };
+      }
+    }
+    else if (lower.startsWith('search files') || lower.startsWith('find files') || lower.startsWith('search for ')) {
+      const rest = clean.split(/\s+/).slice(lower.startsWith('search for') ? 2 : 2).join(' ').trim();
+      // Try to split path and pattern: "search files in C:\Users *.pdf"
+      const inMatch = rest.match(/^(.*?)\s+(?:in|under|inside)\s+(.+)$/i);
+      if (inMatch) {
+        toolName = 'os.searchFiles'; input = { path: (inMatch[2] ?? '').trim(), pattern: (inMatch[1] ?? '').trim() };
+      } else {
+        // Default to Documents with the rest as pattern
+        toolName = 'os.searchFiles'; input = { path: 'Documents', pattern: rest };
+      }
+    }
+    else if (lower.startsWith('copy file')) {
+      const rest = trimmed.slice(9).trim();
+      const toMatch = rest.match(/^(.+?)\s+to\s+(.+)$/i);
+      if (toMatch) {
+        toolName = 'os.copyFile'; input = { source: (toMatch[1] ?? '').trim(), destination: (toMatch[2] ?? '').trim() };
+      }
+    }
+    else if (lower.startsWith('move file') || lower.startsWith('rename file')) {
+      const offset = lower.startsWith('move file') ? 9 : 11;
+      const rest = trimmed.slice(offset).trim();
+      const toMatch = rest.match(/^(.+?)\s+to\s+(.+)$/i);
+      if (toMatch) {
+        toolName = 'os.moveFile'; input = { source: (toMatch[1] ?? '').trim(), destination: (toMatch[2] ?? '').trim() };
+      }
+    }
+    else if (lower.startsWith('delete file') || lower.startsWith('remove file')) {
+      const target = trimmed.split(/\s+/).slice(2).join(' ').trim();
+      if (target) {
+        toolName = 'os.deleteFile'; input = { target };
+      }
+    }
+    else if (lower.startsWith('create folder') || lower.startsWith('create directory') || lower.startsWith('mkdir')) {
+      const dirPath = trimmed.split(/\s+/).slice(2).join(' ').trim();
+      if (dirPath) {
+        toolName = 'os.createFolder'; input = { path: dirPath };
+      }
+    }
+    // Web page reading
+    else if (lower.startsWith('read page') || lower.startsWith('read aloud') || lower.startsWith('read the page') || lower.startsWith('read this page')) {
+      const urlMatch = trimmed.match(/(https?:\/\/[^\s]+)/i);
+      if (urlMatch) {
+        toolName = 'web.readPage'; input = { url: urlMatch[1] ?? '', readAloud: true };
+      }
+    }
+    else if (/^read\s+(https?:\/\/[^\s]+)/i.test(lower)) {
+      const urlMatch = trimmed.match(/(https?:\/\/[^\s]+)/i);
+      if (urlMatch) {
+        toolName = 'web.readPage'; input = { url: urlMatch[1] ?? '', readAloud: true };
+      }
+    }
     // WhatsApp send
     else if (lower.includes('whatsapp') && (lower.includes('send') || lower.includes('message') || lower.includes('tell'))) {
       let message = '';
@@ -1353,6 +1502,18 @@ function registerIpc(): void {
       if (!contact) contact = 'contact';
       if (!message) message = trimmed;
       toolName = 'os.whatsappSend'; input = { contact, message };
+    }
+    // WhatsApp call
+    else if ((lower.includes('whatsapp') || lower.includes('whats app')) && lower.includes('call')) {
+      let contact = '';
+      const cm = trimmed.match(/(?:call|whatsapp)\s+([A-Za-z0-9 _-]+?)(?:\s+on\s+whatsapp|\s+via\s+whatsapp|\s+in\s+whatsapp|$)/i);
+      if (cm) contact = (cm[1] ?? '').trim();
+      if (!contact) {
+        const cm2 = trimmed.match(/\bcall\s+(.+?)\s+on\s+whatsapp\b/i);
+        if (cm2) contact = (cm2[1] ?? '').trim();
+      }
+      if (!contact) contact = 'contact';
+      toolName = 'whatsapp.call'; input = { contact, type: lower.includes('video') ? 'video' : 'voice' };
     }
     // Photo capture
     else if (lower.includes('photo') || lower.includes('picture') || lower.includes('capture image') || lower.includes('take image')) {

@@ -68,4 +68,38 @@ describe('ResponseCache', () => {
       expect(cache.getStats().size).toBe(0);
     });
   });
+
+  it('evicts by byte-size budget', () => {
+    // Small byte budget: 100 bytes
+    const cache = new ResponseCache(100, 1000, 100);
+    cache.set('a', 'A'.repeat(40), 'System');
+    cache.set('b', 'B'.repeat(40), 'System');
+    // Adding 'c' (40 bytes) would exceed 100 → evict oldest ('a')
+    cache.set('c', 'C'.repeat(40), 'System');
+    expect(cache.get('a', 'System')).toBeNull();
+    expect(cache.get('b', 'System')).not.toBeNull();
+    expect(cache.get('c', 'System')).not.toBeNull();
+  });
+
+  it('skips caching responses larger than the byte budget', () => {
+    const cache = new ResponseCache(10, 1000, 50);
+    cache.set('big', 'X'.repeat(100), 'System');
+    expect(cache.get('big', 'System')).toBeNull();
+  });
+
+  it('tracks bytes in stats', () => {
+    const cache = new ResponseCache(10, 1000, 1024);
+    cache.set('a', 'Hello', 'System');
+    const stats = cache.getStats();
+    expect(stats.bytes).toBeGreaterThan(0);
+  });
+
+  it('updates byte count on overwrite', () => {
+    const cache = new ResponseCache(10, 1000, 1024);
+    cache.set('a', 'short', 'System');
+    const before = cache.getStats().bytes;
+    cache.set('a', 'a much longer response that takes more bytes', 'System');
+    const after = cache.getStats().bytes;
+    expect(after).toBeGreaterThan(before);
+  });
 });

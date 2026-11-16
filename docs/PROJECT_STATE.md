@@ -1,9 +1,56 @@
 # Project State
 
-Last updated: 2026-11-01
+Last updated: 2026-11-16
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
-Current milestone: M2 Autonomous Capabilities Complete + UI/Security Enhancements
-Status: All autonomous capabilities (G6, G7, G5) complete. UI improved with Inter font, new icon, secure credential infrastructure. Latest verify: 61 files / 439 tests, 0 type errors, installer rebuilt.
+Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
+Status: Full OS control (volume, brightness, media keys, lock, sleep, window management, text input, clipboard, file ops, web reading, WhatsApp calling). Latest verify: 66 files / 515 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## Production Readiness Sprint - Full OS Control (2026-11-16)
+
+**New OS Control Tools (29 tools added):**
+- ✅ System control: `os.volume`, `os.mute`, `os.mediaKey`, `os.brightness`, `os.lockScreen`, `os.sleep`
+- ✅ Window/process management: `os.closeApp`, `os.switchApp`, `os.minimize`, `os.maximize`, `os.listProcesses`, `os.killProcess`
+- ✅ Text input: `os.typeText`, `os.sendKeys`, `os.clipboardRead`, `os.clipboardWrite`, `os.clipboardClear`
+- ✅ File operations: `os.listFiles`, `os.searchFiles`, `os.copyFile`, `os.moveFile`, `os.deleteFile`, `os.createFolder`
+- ✅ Web reading: `web.readPage` (fetches URL, strips HTML, returns speakable text marked untrusted_content)
+- ✅ WhatsApp calling: `whatsapp.call` (voice/video calling by contact name)
+
+**NL Command Router Extended (~30 new patterns):**
+- ✅ Natural language patterns for all new tools: volume set/mute/unmute/up/down, media keys (play/pause/next/prev), brightness, lock screen, sleep, close/switch app, minimize/maximize, list processes, type text, send keys, clipboard read/write/clear, list/search/copy/move/delete files, create folder, web page reading, WhatsApp calling
+
+**Conversation Engine Improvements:**
+- ✅ `streamMessage` now supports cognition path by chunking DecisionOrchestrator speech output into word-level streaming chunks
+- ✅ `deleteConversation` cleans up pending conversation locks to prevent stale gate stalls
+- ✅ ResponseCache upgraded with byte-size eviction (2 MB default budget) alongside count-based LRU
+- ✅ Cached responses streamed in chunks for UX consistency
+
+**Code Quality Fixes:**
+- ✅ WhatsApp tool `audit` field fixed from invalid object to `'metadata'` string
+- ✅ `normalizeMemoryProfile` uses `randomUUID()` instead of `Math.random()` for memory note IDs
+- ✅ In-place mutation in `.filter()` replaced with separate `.map()` + `.filter()` pipeline
+- ✅ `whatsapp.call` added to `GRANTABLE_PERMISSIONS` array
+
+**New Test Files (76 new tests):**
+- ✅ `system-control.test.ts` (19 tests): tool metadata, input schema validation
+- ✅ `window-control.test.ts` (12 tests): tool metadata, input validation, kill process confirmation
+- ✅ `text-input.test.ts` (11 tests): tool metadata, key combo validation, clipboard schema
+- ✅ `file-ops.test.ts` (21 tests): real file operations with temp dirs, abort handling, edge cases
+- ✅ `web-read.test.ts` (13 tests): HTML extraction, entity decoding, URL validation, injectable fetch
+- ✅ `response-cache.test.ts` (5 new tests): byte-size eviction, budget overflow, byte tracking
+- ✅ `engine.test.ts` (2 new tests): cognition streaming, lock cleanup on delete
+
+**Test Results:**
+- 66 files / 515 tests passing (up from 439)
+- 0 type errors, 0 lint errors
+- Build succeeds
+
+**Capabilities Summary (95% Automation Target):**
+- Play songs by name → `os.play` with local index → Spotify → YouTube fallback
+- Browse and read pages aloud → `web.readPage` + `os.speak`
+- Read emails aloud → Email integration with TTS
+- Open WhatsApp and call by name → `whatsapp.call` (voice/video)
+- Full OS control → volume, brightness, media keys, lock, sleep, window management, text input, clipboard, file operations
+- Bot reasoning → DecisionOrchestrator with L0-L7 prompt compiler, TurnDecision contract, style normalizer
 
 ## Recent Production Hardening (2026-10-31)
 
@@ -116,12 +163,14 @@ Status: All autonomous capabilities (G6, G7, G5) complete. UI improved with Inte
 **Status:** Sprint 3 complete - G6, G7, G5 autonomous capabilities done.
 **Next:** Phase 1 E2E tests for 10+ apps (remaining work).
 
-## Overall Summary (2026-11-01)
+## Overall Summary (2026-11-16)
 
 **Completed Phases:**
 - ✅ Phase 1: OS Control Perfection - app control with verification
 - ✅ Phase 1: Real WhatsApp calling by name (G3 approved)
 - ✅ Phase 1: Media playback by name with incremental indexing
+- ✅ Phase 1: Full OS control — volume, brightness, media keys, lock, sleep, window/process management, text input, clipboard, file operations, web page reading
+- ✅ Phase 1: NL command router extended with ~30 new natural language patterns
 - ⏳ Phase 1: E2E tests for 10+ apps (pending)
 - ✅ Phase 2: Learning Engine - episode logging complete
 - ✅ Phase 2: Consolidation job - behavior pattern analysis complete
@@ -130,13 +179,14 @@ Status: All autonomous capabilities (G6, G7, G5) complete. UI improved with Inte
 - ✅ G6: Autonomous money-making capabilities - financial safety complete
 - ✅ G7: Autonomous goal pursuit - autonomous action engine complete
 - ✅ G5: Gmail integration - email read-aloud and analysis complete
-- ✅ Performance optimization - response caching complete
+- ✅ Performance optimization - response caching with byte-size eviction
+- ✅ Conversation engine - cognition streaming, lock cleanup, cache improvements
 - ✅ UI improvements - enterprise-ready quality (verified in ENTERPRISE_READY.md)
 
 **Test Results:**
-- 61 files / 439 tests passing (up from 414)
-- 0 type errors
-- Installer rebuilt successfully
+- 66 files / 515 tests passing (up from 439)
+- 0 type errors, 0 lint errors
+- Build succeeds
 
 **Remaining Work:**
 - Phase 1: E2E tests for 10+ Windows applications (requires actual Windows apps running - environment limitation)

@@ -6,3 +6,7 @@ data/style-log.jsonl
 data/companion.db
 data/companion.db-*
 latest-qr.png
+
+# Build output
+companion/apps/desktop/release/
+companion/apps/desktop/dist/

@@ -192,4 +192,52 @@ describe('DefaultConversationEngine', () => {
     expect(system?.content).not.toContain('TEXT');
   });
 
+  it('streams with cognition by chunking the speech text', async () => {
+    const typed = JSON.stringify({
+      schemaVersion: '1', turnId: 't1', intent: { type: 'none', confidence: 1 },
+      understanding: 'A greeting.', plan: [],
+      speech: { text: 'This is a longer typed reply that should be chunked into multiple pieces for streaming.', tone: 'plain' },
+      memoryCandidates: [], riskAssessment: { proposedRiskClass: 1, reasons: [] }, followUps: [],
+    });
+    const typedProvider = new MockProvider({ responseContent: typed });
+    const typedRouter = new ProviderRouter({ maxRetries: 1 });
+    typedRouter.register(typedProvider, 10, 'typed-model');
+    const e = new DefaultConversationEngine({
+      router: typedRouter,
+      defaultModel: 'fallback-model',
+      cognition: { self: { identity: 'Companion', style: 'concise', policy: 'Never execute model plans directly.' } },
+    });
+    const conv = e.createConversation();
+    const ctrl = new AbortController();
+    const chunks: string[] = [];
+    for await (const c of e.streamMessage(conv.id, 'Hello', ctrl.signal)) {
+      chunks.push(c);
+    }
+    // Should produce multiple chunks
+    expect(chunks.length).toBeGreaterThan(1);
+    // Reassembled text should contain the full speech text
+    const full = chunks.join('');
+    expect(full).toContain('This is a longer typed reply');
+    // Assistant message should be stored
+    const updated = e.getConversation(conv.id)!;
+    expect(updated.messages.filter((m) => m.role === 'assistant')).toHaveLength(1);
+    expect(updated.messages.find((m) => m.role === 'assistant')?.content).toBe(full);
+  });
+
+  it('cleans up conversation lock on delete', async () => {
+    mock.setConfig({ latency: 30 });
+    const conv = engine.createConversation();
+    // Start a message (acquires lock), then delete while in-flight
+    const pending = engine.sendMessage(conv.id, 'Hi', new AbortController().signal);
+    // Give it time to acquire the lock
+    await new Promise((r) => setTimeout(r, 5));
+    engine.deleteConversation(conv.id);
+    await pending.catch(() => undefined); // may reject since conv is gone
+    // Creating a new conversation with the same ID should not stall
+    const conv2 = engine.createConversation();
+    const reply = await engine.sendMessage(conv2.id, 'Hi', new AbortController().signal);
+    expect(reply.role).toBe('assistant');
+    mock.setConfig({ latency: 0 });
+  });
+
 });
