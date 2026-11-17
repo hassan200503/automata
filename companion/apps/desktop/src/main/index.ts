@@ -1460,6 +1460,16 @@ function registerIpc(): void {
     else if (lower.includes('go to sleep') || lower === 'sleep' || lower.includes('put pc to sleep')) {
       toolName = 'os.sleep'; input = {};
     }
+    // Power: restart / shutdown / hibernate
+    else if (lower.includes('restart') || lower.includes('reboot')) {
+      toolName = 'os.power'; input = { action: 'restart' };
+    }
+    else if (lower.includes('shut down') || lower.includes('shutdown') || lower.includes('power off') || lower.includes('turn off the pc') || lower.includes('turn off the computer')) {
+      toolName = 'os.power'; input = { action: 'shutdown' };
+    }
+    else if (lower.includes('hibernate')) {
+      toolName = 'os.power'; input = { action: 'hibernate' };
+    }
     // Close / switch app
     else if (lower.startsWith('close ') || lower.startsWith('quit ') || lower.startsWith('kill ')) {
       const proc = clean.split(/\s+/).slice(1).join(' ').trim();
@@ -1478,6 +1488,18 @@ function registerIpc(): void {
     }
     else if (lower === 'maximize' || lower.includes('maximize window')) {
       toolName = 'os.maximize'; input = {};
+    }
+    else if (lower.includes('move window') || lower.includes('move the window')) {
+      const nums = lower.match(/-?\d+/g);
+      if (nums && nums.length >= 2) {
+        toolName = 'os.moveWindow'; input = { x: Number(nums[0]), y: Number(nums[1]) };
+      }
+    }
+    else if (lower.includes('resize window') || lower.includes('resize the window')) {
+      const nums = lower.match(/\d+/g);
+      if (nums && nums.length >= 2) {
+        toolName = 'os.resizeWindow'; input = { width: Number(nums[0]), height: Number(nums[1]) };
+      }
     }
     else if (lower.includes('list processes') || lower.includes('running processes') || lower.includes('what is running')) {
       toolName = 'os.listProcesses'; input = {};

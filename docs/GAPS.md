@@ -1,13 +1,15 @@
 # Gap List (v3 brief)
 
 Baseline: 2026-10-29. Graded against `docs/REQUIREMENTS.md`.
-Latest verification: 2026-11-17 — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 532 tests, and both builds. See `docs/PROJECT_STATE.md` for the combined multi-model answer path and premium UI refresh.
+Latest verification: 2026-11-17 — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the combined multi-model answer path, premium UI refresh and added OS operations.
 
-## 2026-11-17 Update — Combined intelligence + premium UI
+## 2026-11-17 Update — Combined intelligence + premium UI + OS gaps
 
 - **Ensemble router** (`packages/core/src/providers/ensemble.ts`): fans a request out to every connected provider in parallel and returns the strongest answer (best-of default; majority/fastest options). Wired into the desktop main process behind a persisted toggle (Settings → Providers). This adds a "combine the models" answer path; individual providers still handle streaming and failover. Not a tracked gap below.
 - **Premium UI refresh** (renderer `styles.css`): near-black token palette, refined surfaces, focus states and on-brand scrollbars. Presentation only.
+- **OS operation gaps closed** (previously absent from the tool set): `os.power` (shutdown/restart/hibernate, Class 3 + confirmation), `os.moveWindow`, `os.resizeWindow`, plus NL patterns. PowerPoint/document generation and UIPI integrity probing remain open (see GAP-04 and the fix order).
 - No gap below changes status from this work.
+
 
 Status values: `FIXED` means code + verification exist for the stated slice; `PARTIAL` means some behavior is present but the acceptance check is not fully met; `OPEN` means no implementation.
 

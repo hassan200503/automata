@@ -178,6 +178,54 @@ export async function killProcess(target: string, signal?: AbortSignal): Promise
   return { killed: true, target: trimmed };
 }
 
+// ── Move / resize active window ─────────────────────────────────────
+
+export async function moveWindow(x: number, y: number, signal?: AbortSignal): Promise<{ ok: boolean; x: number; y: number; error?: string }> {
+  const px = Math.max(-10000, Math.min(10000, Math.round(x)));
+  const py = Math.max(-10000, Math.min(10000, Math.round(y)));
+  const script = [
+    'Add-Type @"',
+    'using System;',
+    'using System.Runtime.InteropServices;',
+    'public class WinPos {',
+    '  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();',
+    '  [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);',
+    '}',
+    '"@',
+    '$hwnd = [WinPos]::GetForegroundWindow()',
+    'if ($hwnd -ne [IntPtr]::Zero) {',
+    `  [WinPos]::SetWindowPos($hwnd, [IntPtr]::Zero, ${px}, ${py}, 0, 0, [uint32]0x0001 -bor [uint32]0x0004) | Out-Null`,
+    '  Write-Output "moved"',
+    '} else { Write-Output "no_window" }',
+  ].join('\n');
+  const result = await runPowerShell(script, signal);
+  if (result.stdout.includes('moved')) return { ok: true, x: px, y: py };
+  return { ok: false, x: px, y: py, error: result.stdout.trim() || result.stderr.trim() || 'failed' };
+}
+
+export async function resizeWindow(width: number, height: number, signal?: AbortSignal): Promise<{ ok: boolean; width: number; height: number; error?: string }> {
+  const w = Math.max(50, Math.min(20000, Math.round(width)));
+  const h = Math.max(50, Math.min(20000, Math.round(height)));
+  const script = [
+    'Add-Type @"',
+    'using System;',
+    'using System.Runtime.InteropServices;',
+    'public class WinSize {',
+    '  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();',
+    '  [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);',
+    '}',
+    '"@',
+    '$hwnd = [WinSize]::GetForegroundWindow()',
+    'if ($hwnd -ne [IntPtr]::Zero) {',
+    `  [WinSize]::SetWindowPos($hwnd, [IntPtr]::Zero, 0, 0, ${w}, ${h}, [uint32]0x0002 -bor [uint32]0x0004) | Out-Null`,
+    '  Write-Output "resized"',
+    '} else { Write-Output "no_window" }',
+  ].join('\n');
+  const result = await runPowerShell(script, signal);
+  if (result.stdout.includes('resized')) return { ok: true, width: w, height: h };
+  return { ok: false, width: w, height: h, error: result.stdout.trim() || result.stderr.trim() || 'failed' };
+}
+
 // ── Tool Definitions ───────────────────────────────────────────────
 
 export function createOsCloseAppTool(): ToolDefinition<{ process: string }, { closed: boolean; process: string; error?: string }> {
@@ -299,6 +347,44 @@ export function createOsKillProcessTool(): ToolDefinition<{ target: string }, { 
   };
 }
 
+export function createOsMoveWindowTool(): ToolDefinition<{ x: number; y: number }, { ok: boolean; x: number; y: number; error?: string }> {
+  return {
+    name: 'os.moveWindow',
+    version: '1.0.0',
+    description: 'Move the active window to screen coordinates (x, y).',
+    inputSchema: z.object({ x: z.number().int().min(-10000).max(10000), y: z.number().int().min(-10000).max(10000) }),
+    outputSchema: z.object({ ok: z.boolean(), x: z.number(), y: z.number(), error: z.string().optional() }),
+    requiredPermissions: ['os.open'],
+    dataClassification: 'personal',
+    riskClass: 1,
+    reversible: true,
+    timeoutMs: 10_000,
+    cancellable: true,
+    audit: 'metadata',
+    platforms: ['all'],
+    execute: async (ctx, input) => moveWindow(input.x, input.y, ctx.signal),
+  };
+}
+
+export function createOsResizeWindowTool(): ToolDefinition<{ width: number; height: number }, { ok: boolean; width: number; height: number; error?: string }> {
+  return {
+    name: 'os.resizeWindow',
+    version: '1.0.0',
+    description: 'Resize the active window to the given width and height in pixels.',
+    inputSchema: z.object({ width: z.number().int().min(50).max(20000), height: z.number().int().min(50).max(20000) }),
+    outputSchema: z.object({ ok: z.boolean(), width: z.number(), height: z.number(), error: z.string().optional() }),
+    requiredPermissions: ['os.open'],
+    dataClassification: 'personal',
+    riskClass: 1,
+    reversible: true,
+    timeoutMs: 10_000,
+    cancellable: true,
+    audit: 'metadata',
+    platforms: ['all'],
+    execute: async (ctx, input) => resizeWindow(input.width, input.height, ctx.signal),
+  };
+}
+
 export function createWindowControlTools(): ToolDefinition<unknown, unknown>[] {
   return [
     createOsCloseAppTool() as ToolDefinition<unknown, unknown>,
@@ -307,5 +393,7 @@ export function createWindowControlTools(): ToolDefinition<unknown, unknown>[] {
     createOsMaximizeTool() as ToolDefinition<unknown, unknown>,
     createOsListProcessesTool() as ToolDefinition<unknown, unknown>,
     createOsKillProcessTool() as ToolDefinition<unknown, unknown>,
+    createOsMoveWindowTool() as ToolDefinition<unknown, unknown>,
+    createOsResizeWindowTool() as ToolDefinition<unknown, unknown>,
   ];
 }

@@ -3,7 +3,7 @@
 Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, window management, text input, clipboard, file ops, web reading, WhatsApp calling) plus a combined multi-model answer path and a premium dark UI refresh. Latest verify: 67 files / 532 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling) plus a combined multi-model answer path and a premium dark UI refresh. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
 
 ## Multi-Model Combine + Premium UI (2026-11-17)
 
@@ -19,8 +19,14 @@ Status: Full OS control (volume, brightness, media keys, lock, sleep, window man
 - ✅ Refined sidebar/brand mark, nav active indicator, glass panels, polished inputs with focus rings, primary-button gradient, chat bubbles, voice panel states and orb, alerts, settings nav and on-brand scrollbars.
 - ✅ CSS bundle grew 15.22 kB → 17.99 kB; build and full `npm run verify` pass.
 
+**New OS operations:**
+- ✅ Power control `os.power` (shutdown / restart / hibernate, optional `delaySeconds` 0–600), Class 3 with mandatory confirmation.
+- ✅ Window control `os.moveWindow` (x/y) and `os.resizeWindow` (width/height) on the foreground window via `SetWindowPos`.
+- ✅ Natural-language patterns added to the command router ("shut down", "restart", "hibernate", "move window to X Y", "resize window to W H").
+- ✅ Tests updated/added: system-control 7 tools, window-control 8 tools, power/move/resize schema coverage.
+
 **Test Results:**
-- 67 files / 532 tests passing (up from 66 / 515)
+- 67 files / 539 tests passing (up from 66 / 515 at the start of this work)
 - 0 type errors, 0 lint errors
 - Build succeeds
 

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { createWindowControlTools, createOsCloseAppTool, createOsSwitchAppTool, createOsMinimizeTool, createOsMaximizeTool, createOsListProcessesTool, createOsKillProcessTool } from './window-control.js';
+import { createWindowControlTools, createOsCloseAppTool, createOsSwitchAppTool, createOsMinimizeTool, createOsMaximizeTool, createOsListProcessesTool, createOsKillProcessTool, createOsMoveWindowTool, createOsResizeWindowTool } from './window-control.js';
 
 describe('window-control tools', () => {
   describe('createWindowControlTools', () => {
-    it('returns all 6 tools', () => {
+    it('returns all 8 tools', () => {
       const tools = createWindowControlTools();
-      expect(tools).toHaveLength(6);
+      expect(tools).toHaveLength(8);
       const names = tools.map((t) => t.name);
       expect(names).toEqual([
         'os.closeApp',
@@ -14,7 +14,43 @@ describe('window-control tools', () => {
         'os.maximize',
         'os.listProcesses',
         'os.killProcess',
+        'os.moveWindow',
+        'os.resizeWindow',
       ]);
+    });
+  });
+
+  describe('os.moveWindow tool', () => {
+    it('has correct metadata', () => {
+      const tool = createOsMoveWindowTool();
+      expect(tool.name).toBe('os.moveWindow');
+      expect(tool.riskClass).toBe(1);
+      expect(tool.requiredPermissions).toEqual(['os.open']);
+    });
+
+    it('validates coordinates', () => {
+      const tool = createOsMoveWindowTool();
+      expect(tool.inputSchema.safeParse({ x: 100, y: 200 }).success).toBe(true);
+      expect(tool.inputSchema.safeParse({ x: -50, y: 0 }).success).toBe(true);
+      expect(tool.inputSchema.safeParse({ x: 100001, y: 0 }).success).toBe(false);
+      expect(tool.inputSchema.safeParse({ x: 1.5, y: 0 }).success).toBe(false);
+      expect(tool.inputSchema.safeParse({}).success).toBe(false);
+    });
+  });
+
+  describe('os.resizeWindow tool', () => {
+    it('has correct metadata', () => {
+      const tool = createOsResizeWindowTool();
+      expect(tool.name).toBe('os.resizeWindow');
+      expect(tool.riskClass).toBe(1);
+      expect(tool.requiredPermissions).toEqual(['os.open']);
+    });
+
+    it('validates dimensions', () => {
+      const tool = createOsResizeWindowTool();
+      expect(tool.inputSchema.safeParse({ width: 1280, height: 720 }).success).toBe(true);
+      expect(tool.inputSchema.safeParse({ width: 49, height: 720 }).success).toBe(false);
+      expect(tool.inputSchema.safeParse({ width: 1280 }).success).toBe(false);
     });
   });
 

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { createSystemControlTools, createOsVolumeTool, createOsMuteTool, createOsMediaKeyTool, createOsBrightnessTool, createOsLockScreenTool, createOsSleepTool } from './system-control.js';
+import { createSystemControlTools, createOsVolumeTool, createOsMuteTool, createOsMediaKeyTool, createOsBrightnessTool, createOsLockScreenTool, createOsSleepTool, createOsPowerTool } from './system-control.js';
 
 describe('system-control tools', () => {
   describe('createSystemControlTools', () => {
-    it('returns all 6 tools', () => {
+    it('returns all 7 tools', () => {
       const tools = createSystemControlTools();
-      expect(tools).toHaveLength(6);
+      expect(tools).toHaveLength(7);
       const names = tools.map((t) => t.name);
       expect(names).toEqual([
         'os.volume',
@@ -14,6 +14,7 @@ describe('system-control tools', () => {
         'os.brightness',
         'os.lockScreen',
         'os.sleep',
+        'os.power',
       ]);
     });
   });
@@ -120,6 +121,32 @@ describe('system-control tools', () => {
     it('accepts empty input', () => {
       const tool = createOsSleepTool();
       expect(tool.inputSchema.safeParse({}).success).toBe(true);
+    });
+  });
+
+  describe('os.power tool', () => {
+    it('has correct metadata and requires confirmation', () => {
+      const tool = createOsPowerTool();
+      expect(tool.name).toBe('os.power');
+      expect(tool.riskClass).toBe(3);
+      expect(tool.reversible).toBe(false);
+      expect(tool.requiresConfirmation).toBe(true);
+      expect(tool.requiredPermissions).toEqual(['os.open']);
+    });
+
+    it('accepts valid actions and optional delay', () => {
+      const tool = createOsPowerTool();
+      expect(tool.inputSchema.safeParse({ action: 'shutdown' }).success).toBe(true);
+      expect(tool.inputSchema.safeParse({ action: 'restart' }).success).toBe(true);
+      expect(tool.inputSchema.safeParse({ action: 'hibernate' }).success).toBe(true);
+      expect(tool.inputSchema.safeParse({ action: 'restart', delaySeconds: 60 }).success).toBe(true);
+    });
+
+    it('rejects unknown actions and out-of-range delays', () => {
+      const tool = createOsPowerTool();
+      expect(tool.inputSchema.safeParse({ action: 'reboot' }).success).toBe(false);
+      expect(tool.inputSchema.safeParse({ action: 'shutdown', delaySeconds: 601 }).success).toBe(false);
+      expect(tool.inputSchema.safeParse({}).success).toBe(false);
     });
   });
 });

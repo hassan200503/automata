@@ -525,3 +525,12 @@ The ensemble is unit-verified and wired through IPC/UI; it has not been exercise
 | --- | --- | --- |
 | V-85 | `npm run build -w @companion/desktop` and `npm run verify` from `companion/`; inspect Vite CSS bundle size | PASS: the renderer CSS bundle changed from 15.22 kB to 17.99 kB after the token palette and component refinements; the full gate stayed green. This is a build/packaging check only — the refreshed surfaces were not visually reviewed in this Linux sandbox (the app is Windows-first). |
 
+## 36. Additional OS operations (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-86 | `npm run typecheck`; `npx vitest run packages/core/src/os-control/system-control.test.ts packages/core/src/os-control/window-control.test.ts`; `npm run verify` from `companion/` | PASS: `os.power` (shutdown/restart/hibernate, Class 3 + confirmation), `os.moveWindow` and `os.resizeWindow` added with NL patterns; 32 focused tests passed; full gate green at 67 files / 539 tests, 0 lint errors, 0 type errors, both builds passed. |
+
+Schema/metadata only — the PowerShell `shutdown.exe` and `SetWindowPos` paths were not executed (the test host is Linux; the tools are Windows-first), so real power and window-geometry effects remain unverified.
+
+
