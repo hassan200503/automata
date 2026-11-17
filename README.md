@@ -4,7 +4,7 @@
 
 <img src="apps/desktop/resources/icon.png" alt="Automata app icon" width="88" height="88" />
 
-![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.6.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D22.5.0-green.svg)
 ![Electron](https://img.shields.io/badge/electron-45-9BE349.svg)
@@ -15,7 +15,7 @@
 
 **A voice-first, autonomous Windows desktop assistant with full OS control, multi-model AI reasoning, and enterprise-grade safety.**
 
-[![Download](https://img.shields.io/badge/download-latest%20release-brightgreen.svg)](https://github.com/hassan200503/automata/releases)
+[![Download](https://img.shields.io/badge/download-latest%20release-brightgreen.svg)](https://github.com/hassan200503/automata/releases/latest)
 
 </div>
 
@@ -53,7 +53,11 @@ Automata is a production-oriented Windows desktop application that turns natural
 
 Automata does not just execute commands. It reasons over a layered cognition pipeline, remembers what it learns, and is deliberately honest: it only claims an OS action succeeded when the action was actually observed. Every tool call passes through a policy engine with risk classes, rate limits, confirmation flows, an audit trail, and a global emergency stop.
 
-### What's New in v0.6.0
+### What's New in v0.6.1
+
+- **First-run setup no longer gets stuck.** On the voice-guided setup, step 10 of 11 ("Connect Gemini") used to park you on that step after you saved a key, until you said "continue". Saving a provider key now **finishes setup and drops you straight into the workspace**.
+
+### Previously in v0.6.0
 
 - **Speech is the default.** Automata now talks and listens by default. The old row of controls above the stage (**Listen · Live voice is off · Mute · Stop everything**) is gone, replaced by one modern **Voice switch in the sidebar** that is **on out of the box**. Because voice is the default mode of communication, turning it **off asks for confirmation**: flipping it off stops listening, aborts the in-flight reply, stops any speech, rejects a pending action, and then keeps answering as text until you switch voice back on.
 - **Works in the background.** Automata keeps listening, speaking and running OS commands while the window is hidden or minimised. Background voice is on by default, the window is created with `backgroundThrottling: false` so audio, timers and the speech bridge stay alive, and **closing the window minimises to the system tray** instead of quitting — the tray menu offers **Show**, **Pause/Resume background**, **Start with Windows** and a real **Exit**. **Settings → Voice → "Keep working in the background"** toggles the listen-while-unfocused behaviour.

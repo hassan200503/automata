@@ -628,8 +628,14 @@ The v0.6.0 tag (`4e3265d`) predates the onboarding fix, and the renderer is bund
 | --- | --- | --- |
 | V-126 | Version bump `0.6.0 → 0.6.1` in `package.json`, `packages/core/package.json`, `apps/desktop/package.json` (+ `@automata/core` dep), then `npm install` and `grep -n '0\.6\.0' package-lock.json` | `npm install` reported "added 48 packages in 642ms"; the lockfile's own versions and the `@automata/core` range now read `0.6.1`, and the only remaining `0.6.0` strings are unrelated semver ranges. `CHANGELOG.md` gained a `[0.6.1]` entry; `docs/PROJECT_STATE.md` gained an "Onboarding fix — v0.6.1" section. |
 | V-127 | `npm run verify` from the repository root | PASS: ESLint 0 errors, TypeScript clean, **67 test files / 539 tests passed**, both builds succeed (renderer `index-BxQxcGvk.js` 304.35 kB + `index-rHGJ_xdQ.css` 20.23 kB). |
-| V-128 | Tag `v0.6.1` pushed, then `GET /repos/.../actions/runs` and `GET /repos/.../releases/tags/v0.6.1` | PENDING at time of writing — this row is completed by the publication record in section 44. |
+| V-128 | Pushed `main` (`249efae..313908c`) and tag `v0.6.1`; then `GET /repos/.../actions/runs?per_page=8` and `GET /repos/.../releases/latest` | PASS: both workflows completed green — **Automata CI #6 (main): success**, **Release #3 (v0.6.1): success**. Release `v0.6.1` ("Automata v0.6.1", published 2026-11-17T13:03:00Z) carries `Automata-0.6.1-x64.exe` (**124,656,146 B**, the Windows-CI build) and `SHA256SUMS.txt` (**89 B**); the release body embeds the checksum `dfa2c007…5acff7` and a `certutil -hashfile` instruction. |
 
-Honesty caveat: this patch changes renderer/onboarding code only; the fix itself was verified by type/lint/test plus code inspection (see section 42), not by a live Windows first run.
+## 44. Publication — Automata v0.6.1 shipped (2026-11-17)
+
+- ✅ `main` pushed (`249efae..313908c`) and tag `v0.6.1` pushed; **Automata CI** and **Release** both completed green on the Windows runner.
+- ✅ `GET /releases/latest` now resolves to `v0.6.1`; the asset downloads anonymously, and `SHA256SUMS.txt` reads `dfa2c007d955bc34ad24896903a4ba6c86b3da957ff1249f5bc57514a95acff7 *Automata-0.6.1-x64.exe`, matching the checksum embedded in the release body (`sha256sum` cross-check compared the two strings).
+- ✅ The v0.6.0 release is left untouched (tag and asset unchanged); only the patch adds the onboarding fix.
+
+Honesty caveat for this pass: the installer is unsigned and was not installed on Windows; the fix it carries was verified by type/lint/test plus code inspection (section 42), not by a live first run.
 
 
