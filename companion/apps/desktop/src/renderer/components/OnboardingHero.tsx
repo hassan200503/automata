@@ -30,10 +30,10 @@ export function OnboardingHero(props: Props) {
   const progress = Math.round(((voiceGuideStepIndex(props.voiceGuide.currentStep) + 1) / voiceGuideSteps.length) * 100);
 
   return (
-    <section className="hero-stage voice-guide-hero">
-      <h1 className="brand-hero">Companion</h1>
-      <p className="hero-line">
-        {props.guideActive ? 'I will guide you by voice' : 'Talk first. Type only when you want to.'}
+    <section className="hero">
+      <h1>Companion</h1>
+      <p className="hero-sub">
+        {props.guideActive ? 'I will guide you by voice.' : 'Talk first. Type only when you want to.'}
       </p>
       <p className="lede">
         {props.guideActive
@@ -41,15 +41,15 @@ export function OnboardingHero(props: Props) {
           : 'Connect a provider, enable cloud speech, then speak naturally. I only claim OS actions I can observe.'}
       </p>
       {props.guideActive ? (
-        <div className="voice-guide">
-          <div className="voice-guide-progress" aria-hidden="true">
-            <div className="voice-guide-progress-bar" style={{ width: `${progress}%` }} />
+        <div className="stack" style={{ marginTop: 8 }}>
+          <div className="progress" aria-hidden="true">
+            <div className="progress-bar" style={{ width: `${progress}%` }} />
           </div>
           <div className="muted">
             Step {voiceGuideStepIndex(props.voiceGuide.currentStep) + 1} of {voiceGuideSteps.length} · {step.title}
           </div>
-          <p className="voice-guide-prompt">{props.guidePrompt || step.prompt}</p>
-          <div className="composer voice-guide-composer">
+          <p className="hero-prompt">{props.guidePrompt || step.prompt}</p>
+          <div className="composer-box">
             <textarea
               aria-label="Onboarding answer"
               placeholder={step.hint}
@@ -62,9 +62,12 @@ export function OnboardingHero(props: Props) {
                 }
               }}
             />
-            <button className="primary" onClick={() => props.onSubmitGuide(props.guideAnswer || 'continue')} disabled={props.busy || props.speaking}>
-              Continue
-            </button>
+            <div className="composer-actions">
+              <span className="composer-hint">Answer out loud or type, then continue</span>
+              <button className="primary" onClick={() => props.onSubmitGuide(props.guideAnswer || 'continue')} disabled={props.busy || props.speaking}>
+                Continue
+              </button>
+            </div>
           </div>
           <div className="actions">
             {props.voiceGuide.draft.cloudSpeechConsent && props.hasProvider && !props.voiceMode && (
@@ -75,7 +78,7 @@ export function OnboardingHero(props: Props) {
           </div>
         </div>
       ) : (
-        <div className="actions">
+        <div className="actions" style={{ marginTop: 10 }}>
           <button className="primary" onClick={props.onStartVoiceOnboarding} disabled={props.busy}>Start voice onboarding</button>
           <button className="ghost" onClick={props.onStartTalking} disabled={props.busy}>Start talking</button>
           <button className="ghost" onClick={props.onRunSystemCheck} disabled={props.busy}>Run system check only</button>

@@ -15,9 +15,9 @@ type Props = {
 export function AlertsRail({ alerts, onDismiss, onSpeak }: Props) {
   if (alerts.length === 0) return null;
   return (
-    <aside className="alerts-rail" aria-live="polite">
+    <aside className="alerts" aria-live="polite">
       {alerts.map((alert) => (
-        <div key={alert.id} className="alert-chip">
+        <div key={alert.id} className="alert">
           <div>
             <div className="eyebrow">{alert.topic}</div>
             <p>{alert.message}</p>

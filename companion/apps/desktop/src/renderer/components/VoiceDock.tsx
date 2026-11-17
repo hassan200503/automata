@@ -29,51 +29,54 @@ export function VoiceDock(props: Props) {
     onEnableCloudSpeech, onStartListening, onStopListening, onToggleMute, onStopEverything, onOpenMicSettings,
   } = props;
 
+  const activity = voiceState === 'processing' ? 'thinking' : speaking ? 'speaking' : voiceMode ? 'live' : '';
+  const headline = voiceMode
+    ? speaking ? 'Speaking' : voiceState === 'processing' ? 'Thinking' : voiceState === 'starting' ? 'Opening the microphone' : 'Listening'
+    : cloudConsentNeeded ? 'Voice needs your OK' : 'Live voice is off';
+
   return (
-    <div className={`voice-panel ${voiceMode ? 'listening' : ''} ${speaking ? 'speaking' : ''} ${voiceState === 'processing' ? 'thinking' : ''}`}>
-      <div className="voice-hero">
-        <div className={`voice-orb ${voiceMode ? 'live' : ''} ${speaking ? 'speak' : ''}`} aria-hidden="true">
-          <span className="voice-orb-ring" />
-          <span className="voice-orb-core" />
-        </div>
-        <div className="voice-status">
-          <strong className="voice-headline">
-            {voiceMode
-              ? (speaking ? 'Companion is speaking' : voiceState === 'processing' ? 'Thinking about what you said' : voiceState === 'starting' ? 'Opening the microphone' : 'Listening live')
-              : cloudConsentNeeded ? 'Voice needs your OK' : 'Live voice is off'}
-          </strong>
-          <div className="muted">
-            {voiceMode
-              ? `Microphone active · ${voiceEngine === 'gemini' ? 'Google Gemini transcription' : `${voiceEngine} engine`} · raw audio is not stored`
-              : cloudConsentNeeded
-                ? 'Short speech clips are transcribed by Google Gemini. Nothing is saved as an audio file on this PC.'
-                : 'Speech is the primary way to talk with Companion. Text is always available.'}
-          </div>
-        </div>
+    <div className={`voicebar ${activity}`}>
+      <div className={`vb-orb ${voiceMode ? 'live' : ''} ${speaking ? 'speak' : ''}`} aria-hidden="true">
+        <span className="ring" />
+        <span className="core" />
       </div>
-      <div className="voice-actions">
+      <div className="vb-text">
+        <strong>{headline}</strong>
+        <span>
+          {voiceMode
+            ? `Mic active · ${voiceEngine === 'gemini' ? 'Gemini transcription' : `${voiceEngine} engine`} · audio is not stored`
+            : cloudConsentNeeded
+              ? 'Short clips are transcribed by Gemini. Nothing is saved as an audio file.'
+              : 'Speech is the primary way to talk. Text always works too.'}
+        </span>
+      </div>
+      <div className="vb-actions">
         {cloudConsentNeeded && !voiceMode && (
           <button className="primary" onClick={onEnableCloudSpeech} disabled={!hasConversation || muted || !hasProvider}>
             Enable cloud speech
           </button>
         )}
         {voiceMode
-          ? <button className="danger" onClick={onStopListening}>Pause listening</button>
-          : !cloudConsentNeeded && <button onClick={onStartListening} disabled={!hasConversation || muted}>Start listening</button>}
+          ? <button onClick={onStopListening}>Pause</button>
+          : !cloudConsentNeeded && <button onClick={onStartListening} disabled={!hasConversation || muted}>Listen</button>}
         <button onClick={onToggleMute}>{muted ? 'Unmute' : 'Mute'}</button>
         <button className="danger" onClick={onStopEverything}>Stop everything</button>
       </div>
-      <div className="living-indicator" aria-live="polite">
-        <span className="pulse" /> {voiceMode ? 'Speak naturally. Say "stop" while I am talking if you want me to be quiet.' : 'Microphone off.'}
-      </div>
-      {calibrationQuestion && <div className="voice-transcript">Setup {calibrationStep ? `(${calibrationStep})` : ''}: {calibrationQuestion}</div>}
-      {interimTranscript && <div className="voice-transcript" aria-live="polite">{interimTranscript}</div>}
-      {voiceWarning && <div className="voice-consent" role="status">{voiceWarning}</div>}
-      {voiceError && <div className="voice-error" role="alert">{voiceError}</div>}
+      {voiceMode && (
+        <div className="vb-line">
+          <span className="pulse-dot" /> <span className="muted">Say “stop” while I talk to interrupt.</span>
+        </div>
+      )}
+      {calibrationQuestion && (
+        <div className="vb-line vb-transcript">Setup {calibrationStep ? `(${calibrationStep})` : ''}: {calibrationQuestion}</div>
+      )}
+      {interimTranscript && <div className="vb-line vb-transcript" aria-live="polite">{interimTranscript}</div>}
+      {voiceWarning && <div className="vb-line vb-warn" role="status">{voiceWarning}</div>}
+      {voiceError && <div className="vb-line vb-error" role="alert">{voiceError}</div>}
       {speechPrivacyNeeded && (
-        <button className="ghost" onClick={onOpenMicSettings}>
-          Open Windows microphone privacy settings
-        </button>
+        <div className="vb-line">
+          <button className="ghost" onClick={onOpenMicSettings}>Open Windows microphone privacy settings</button>
+        </div>
       )}
     </div>
   );
