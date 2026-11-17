@@ -620,4 +620,16 @@ Bug: in the first-run voice guide, step 10 of 11 ("Connect Gemini", `awaitsActio
 
 Honesty caveat: verified by type/lint/test and code inspection; the redirect was not driven end-to-end in a live Windows session against a real credential store.
 
+## 43. Patch release v0.6.1 — ship the onboarding fix (2026-11-17)
+
+The v0.6.0 tag (`4e3265d`) predates the onboarding fix, and the renderer is bundled into the installer, so the published v0.6.0 asset cannot contain it. The app has no auto-updater (`grep -R autoUpdater|electron-updater` → no matches), so a patch release is the only way to deliver the fix.
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-126 | Version bump `0.6.0 → 0.6.1` in `package.json`, `packages/core/package.json`, `apps/desktop/package.json` (+ `@automata/core` dep), then `npm install` and `grep -n '0\.6\.0' package-lock.json` | `npm install` reported "added 48 packages in 642ms"; the lockfile's own versions and the `@automata/core` range now read `0.6.1`, and the only remaining `0.6.0` strings are unrelated semver ranges. `CHANGELOG.md` gained a `[0.6.1]` entry; `docs/PROJECT_STATE.md` gained an "Onboarding fix — v0.6.1" section. |
+| V-127 | `npm run verify` from the repository root | PASS: ESLint 0 errors, TypeScript clean, **67 test files / 539 tests passed**, both builds succeed (renderer `index-BxQxcGvk.js` 304.35 kB + `index-rHGJ_xdQ.css` 20.23 kB). |
+| V-128 | Tag `v0.6.1` pushed, then `GET /repos/.../actions/runs` and `GET /repos/.../releases/tags/v0.6.1` | PENDING at time of writing — this row is completed by the publication record in section 44. |
+
+Honesty caveat: this patch changes renderer/onboarding code only; the fix itself was verified by type/lint/test plus code inspection (see section 42), not by a live Windows first run.
+
 

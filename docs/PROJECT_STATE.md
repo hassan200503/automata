@@ -3,7 +3,15 @@
 Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a voice-first UI over an ambient video backdrop in which **speech is the default mode of communication**. The product is now branded **Automata by HassanTech**. Release **v0.6.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a voice-first UI over an ambient video backdrop in which **speech is the default mode of communication**. The product is now branded **Automata by HassanTech**. Release **v0.6.1**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## Onboarding fix — v0.6.1 (2026-11-17)
+
+- ✅ **First-run setup no longer sticks on "Connect Gemini" (step 10 of 11).** Saving a provider API key at that step now finishes the voice guide and drops the owner straight into the workspace. New `finishVoiceGuideAfterProvider()` in `apps/desktop/src/renderer/App.tsx` advances the guide past `provider`, stamps `complete` + `completedAt`, persists the draft (persona calibration + privacy preset), speaks the completion line, runs the system check, clears `guideActive`, switches to the chat workspace and starts listening when cloud-speech consent is on; `saveKey()` calls it when the guide is on the `provider` step and a key was stored.
+- ✅ Keys saved at any other moment keep the previous "return to the guide and say continue" behaviour.
+- ✅ Version bumped `0.6.0 → 0.6.1` (root, `packages/core`, `apps/desktop` + `@automata/core` dep); lockfile re-synced; `CHANGELOG.md` gained a 0.6.1 entry. The fix is bundled into the installer, so an existing v0.6.0 install must download v0.6.1 (no auto-updater).
+
+**Test Results:** 67 files / 539 tests passing, 0 type errors, 0 lint errors, build succeeds.
 
 ## Speech by default + background operation — v0.6.0 (2026-11-17)
 

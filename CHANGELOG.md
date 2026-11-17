@@ -5,6 +5,17 @@ All notable changes to **Automata** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-11-17
+
+### Fixed
+
+- **First-run setup no longer gets stuck on "Connect Gemini" (step 10 of 11).** Saving a provider API key at that step now finishes the voice guide automatically and drops you straight into the workspace, instead of parking you on the step until you say "continue". A key saved at any other moment keeps the previous behaviour.
+
+### Notes
+
+- Patch release: the renderer fix above is bundled into the installer, so an existing v0.6.0 install needs to download v0.6.1 to pick it up (the app has no auto-updater).
+- The Windows installer is unsigned. Windows SmartScreen will warn on first run; verify the SHA-256 in the release notes.
+
 ## [0.6.0] - 2026-11-17
 
 ### Added
