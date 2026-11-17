@@ -54,6 +54,8 @@ declare global {
       credentialsSet(providerId: string, apiKey: string, model?: string): Promise<any>;
       credentialsDelete(providerId: string): Promise<any>;
       providersAddCustom(config: { name: string; baseUrl: string; model: string }, apiKey: string): Promise<any>;
+      providersEnsembleGet(): Promise<{ enabled: boolean; active: boolean; members: number }>;
+      providersEnsembleSet(enabled: boolean): Promise<{ enabled: boolean; active: boolean; members: number }>;
       osListTools(): Promise<any>;
       osExecuteTool(toolName: string, input: unknown, confirmationHash?: string, source?: string): Promise<any>;
       osTryCommand(text: string, source?: string): Promise<any>;

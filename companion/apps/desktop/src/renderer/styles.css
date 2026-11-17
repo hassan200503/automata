@@ -697,6 +697,43 @@ textarea { min-height: 72px; resize: vertical; }
   gap: 10px;
 }
 
+.ensemble-card {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 18px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(215, 168, 74, 0.16), transparent 60%),
+    rgba(0, 0, 0, 0.18);
+}
+.ensemble-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ensemble-head strong { display: block; margin-bottom: 4px; }
+.ensemble-head .muted { margin: 0; }
+
+.pill {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.25);
+}
+.pill-live {
+  color: #06231a;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent-2), #1f9d72);
+}
+
 @media (max-width: 980px) {
   .settings-shell { grid-template-columns: 1fr; }
   .settings-nav { flex-direction: row; flex-wrap: wrap; }

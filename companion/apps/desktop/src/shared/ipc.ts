@@ -55,6 +55,8 @@ export const ipcChannels = {
   credentialsSet: 'credentials:set',
   credentialsDelete: 'credentials:delete',
   providersAddCustom: 'providers:addCustom',
+  providersEnsembleGet: 'providers:ensembleGet',
+  providersEnsembleSet: 'providers:ensembleSet',
   osListTools: 'os:listTools',
   osExecuteTool: 'os:executeTool',
   osTryCommand: 'os:tryCommand',
