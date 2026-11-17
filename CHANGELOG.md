@@ -5,6 +5,29 @@ All notable changes to **Automata** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-11-17
+
+### Added
+
+- **A single, modern Voice switch in the sidebar.** Speech is now the default mode of communication and the switch is **on out of the box**. Turning it off is confirmable — voice being the default — and does a full stop: it stops listening, aborts the in-flight reply, stops any speech, rejects a pending action, and keeps answering as text until you switch voice back on.
+- **Background operation.** Automata keeps listening, speaking and executing OS commands while the window is hidden or minimised. Closing the window now **minimises to the system tray** instead of quitting; the tray menu offers **Show · Pause/Resume background · Start with Windows · Exit**, and the window is created with `backgroundThrottling: false` so audio, timers and the speech bridge stay alive.
+- **Settings → Voice → "Keep working in the background"** checkbox, backed by a new speech setting `listenWhenUnfocused` (default `true`).
+
+### Changed
+
+- **Removed the top-of-stage voice controls** — `Listen`, `Live voice is off`, `Mute` and `Stop everything` no longer exist. The top of **Talk** is now an informational voice-status strip only, and the sidebar switch is the single voice control. The composer's mic button was removed too; its hint now reflects the switch state.
+- Default speech settings now start voice-on: `listenWhenUnfocused` defaults to `true` (previously `false`).
+- Version bumped to **0.6.0**.
+
+### Fixed
+
+- The Windows application user-model id is now `com.hassantech.automata` (it was still `com.kkc36.companion` from before the rebrand).
+
+### Notes
+
+- Refreshed every screenshot and the demo GIF for the voice-on-by-default shell.
+- The Windows installer is unsigned. Windows SmartScreen will warn on first run; verify the SHA-256 in the release notes.
+
 ## [0.5.0] - 2026-11-17
 
 ### Added
@@ -57,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Natural-language command router (~30 regex patterns).
 - Streaming cognition output, response-cache eviction and conversation-lock cleanup.
 
+[0.6.0]: https://github.com/hassan200503/automata/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hassan200503/automata/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/hassan200503/automata/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/hassan200503/automata/compare/v0.2.0...v0.3.0

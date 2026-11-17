@@ -34,6 +34,8 @@ describe('normalizeVoiceSettings', () => {
     expect(settings.autoStart).toBe(true);
     expect(settings.handsFree).toBe(true);
     expect(settings.bargeIn).toBe(true);
+    expect(settings.listenWhenUnfocused).toBe(true);
+    expect(normalizeVoiceSettings({ listenWhenUnfocused: false }).listenWhenUnfocused).toBe(false);
     expect(defaultVoiceSettings.muted).toBe(false);
     expect(defaultVoiceSettings.cloudSpeechConsent).toBe(false);
     expect(normalizeVoiceSettings({ cloudSpeechConsent: true }).cloudSpeechConsent).toBe(true);

@@ -22,6 +22,7 @@ import { ConfirmModal } from './components/ConfirmModal';
 import { OnboardingHero } from './components/OnboardingHero';
 import { SettingsShell, type EmailForm, type PayPalForm } from './components/SettingsShell';
 import { VoiceDock } from './components/VoiceDock';
+import { VoiceSwitch } from './components/VoiceSwitch';
 import type { ProposedMemory } from './components/MemoryInbox';
 import backgroundLoop from './assets/background.mp4';
 
@@ -98,6 +99,8 @@ export default function App() {
   const [, setUpdateInfo] = useState<any>(null);
   const [muted, setMuted] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ actionHash: string; toolName: string; input: any; readBackText?: string; pendingVoiceConfirmation?: boolean } | null>(null);
+  const [confirmVoiceOff, setConfirmVoiceOff] = useState(false);
+  const [voiceConsentPrompt, setVoiceConsentPrompt] = useState(false);
   const [owner, setOwner] = useState<any>({});
   const [ownerLoaded, setOwnerLoaded] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -114,7 +117,7 @@ export default function App() {
   const greetedRef = useRef(false);
   const activeConvRef = useRef<string | null>(null);
   const sendMessageRef = useRef<(content: string, speak?: boolean, source?: 'owner_ui' | 'owner_voice') => Promise<void>>(async () => {});
-  const startListeningRef = useRef<() => Promise<void>>(async () => {});
+  const startListeningRef = useRef<(options?: { promptConsent?: boolean }) => Promise<void>>(async () => {});
   const handleTranscriptRef = useRef<(raw: string) => Promise<void>>(async () => {});
   const lastSpokenRef = useRef('');
   const ignoreUntilRef = useRef(0);
@@ -341,17 +344,44 @@ export default function App() {
     }
     if (!activeConv || muted || voiceSettings?.autoStart === false || autoStartedRef.current) return;
     autoStartedRef.current = true;
-    void startListeningRef.current();
+    void startListeningRef.current({ promptConsent: true });
   }, [tab, activeConv, muted, voiceSettings?.autoStart]);
 
-  async function toggleMute(): Promise<void> {
-    const next = !muted;
-    setMuted(next);
-    mutedRef.current = next;
-    const nextSettings = { ...voiceSettings, muted: next };
+  async function setVoiceEnabled(enabled: boolean): Promise<void> {
+    const nextMuted = !enabled;
+    setMuted(nextMuted);
+    mutedRef.current = nextMuted;
+    const nextSettings = { ...voiceSettingsRef.current, muted: nextMuted };
     setVoiceSettings(nextSettings);
+    voiceSettingsRef.current = nextSettings;
     await window.companion.voiceSetSettings(nextSettings);
-    if (next) stopListening();
+    if (nextMuted) {
+      stopListening();
+      try { await window.companion.chatAbort(); } catch { /* ignore */ }
+      try { await window.companion.voiceStopSpeaking(); } catch { /* ignore */ }
+      if (pendingAction) {
+        try { await window.companion.osRejectTool(pendingAction.actionHash); } catch { /* ignore */ }
+        setPendingAction(null);
+      }
+      setVoiceConsentPrompt(false);
+      setVoiceWarning('Voice is off. Automata will answer as text only until you turn voice back on.');
+      return;
+    }
+    setVoiceWarning('');
+    if (voiceSettingsRef.current?.cloudSpeechConsent !== true) {
+      setCloudConsentNeeded(true);
+      setVoiceConsentPrompt(true);
+      return;
+    }
+    await startListening({ promptConsent: true });
+  }
+
+  function requestVoiceToggle(next: boolean): void {
+    if (!next) {
+      setConfirmVoiceOff(true);
+      return;
+    }
+    void setVoiceEnabled(true);
   }
 
   async function savePersona(next: any): Promise<void> {
@@ -915,26 +945,29 @@ export default function App() {
   }
 
   async function enableCloudSpeech(): Promise<void> {
-    const nextSettings = { ...voiceSettingsRef.current, cloudSpeechConsent: true };
+    const nextSettings = { ...voiceSettingsRef.current, cloudSpeechConsent: true, muted: false };
     setVoiceSettings(nextSettings);
     voiceSettingsRef.current = nextSettings;
+    setMuted(false);
+    mutedRef.current = false;
     setCloudConsentNeeded(false);
+    setVoiceConsentPrompt(false);
     await window.companion.voiceSetSettings(nextSettings);
     setStatus('Cloud speech enabled. Short clips are transcribed by Google Gemini; nothing is saved as an audio file.');
     await startListening();
   }
 
-  async function startListening(): Promise<void> {
+  async function startListening(options: { promptConsent?: boolean } = {}): Promise<void> {
     if (!activeConvRef.current) {
       setVoiceError('Create or select a chat before starting live listening.');
       return;
     }
     if (mutedRef.current) {
-      setVoiceError('Unmute before starting live listening.');
+      setVoiceError('Turn voice on in the sidebar before starting live listening.');
       return;
     }
     if (!windowFocusedRef.current && voiceSettingsRef.current?.listenWhenUnfocused !== true) {
-      setVoiceError('Listening is paused while Automata is in the background. Enable “Listen when unfocused” in Voice settings or focus the window.');
+      setVoiceError('Listening is paused while Automata is in the background. Enable “Keep working in the background” in Voice settings or focus the window.');
       return;
     }
     setVoiceError('');
@@ -945,7 +978,7 @@ export default function App() {
       setVoiceState('off');
       setVoiceMode(false);
       voiceModeRef.current = false;
-      setVoiceError('Speech needs your OK: short microphone clips are sent to Google Gemini for transcription. Raw audio is not stored on disk.');
+      if (options.promptConsent) setVoiceConsentPrompt(true);
       return;
     }
     setVoiceState('starting');
@@ -994,9 +1027,9 @@ export default function App() {
                 if (consecutiveNoiseRef.current >= 5) {
                   consecutiveNoiseRef.current = 0;
                   setInterimTranscript('');
-                  setVoiceWarning('Lots of background noise — I paused so I would not keep chatting with silence. Tap listen when you are ready.');
+                  setVoiceWarning('Lots of background noise — I paused so I would not keep chatting with silence. Toggle voice off and on in the sidebar when you are ready.');
                   stopListening();
-                  void speakReply('I am hearing mostly noise, so I paused listening. Tap listen when you want to talk.');
+                  void speakReply('I am hearing mostly noise, so I paused listening. Toggle voice off and on when you want to talk.');
                   return;
                 }
                 if (voiceModeRef.current) {
@@ -1312,16 +1345,6 @@ export default function App() {
     return `${pendingAction.toolName}: ${JSON.stringify(pendingAction.input)}`;
   }
 
-  async function stopEverything(): Promise<void> {
-    stopListening();
-    try { await window.companion.chatAbort(); } catch { /* ignore */ }
-    try { await window.companion.voiceStopSpeaking(); } catch { /* ignore */ }
-    if (pendingAction) {
-      try { await window.companion.osRejectTool(pendingAction.actionHash); } catch { /* ignore */ }
-      setPendingAction(null);
-    }
-  }
-
 
   return (
     <div className="app">
@@ -1362,6 +1385,41 @@ export default function App() {
             Settings
           </button>
         </nav>
+
+        <VoiceSwitch
+          voiceOn={!muted}
+          status={
+            muted
+              ? 'off'
+              : speaking
+                ? 'speaking'
+                : voiceState === 'processing'
+                  ? 'thinking'
+                  : cloudConsentNeeded
+                    ? 'waiting'
+                    : voiceMode
+                      ? 'live'
+                      : voiceState === 'error'
+                        ? 'error'
+                        : 'waiting'
+          }
+          detail={
+            muted
+              ? 'Off · replies as text'
+              : speaking
+                ? 'Speaking now'
+                : voiceState === 'processing'
+                  ? 'Thinking'
+                  : cloudConsentNeeded
+                    ? 'Needs your OK'
+                    : voiceMode
+                      ? 'On · listening'
+                      : voiceState === 'starting'
+                        ? 'Starting…'
+                        : 'On · ready'
+          }
+          onToggle={requestVoiceToggle}
+        />
 
         <div className="rail-history">
           <button className="newchat" onClick={() => { void newConversation(); setTab('chat'); setNavOpen(false); }}>
@@ -1432,7 +1490,7 @@ export default function App() {
             {tab === 'chat' ? 'Talk' : tab === 'setup' ? 'Setup' : 'Settings'}
             <small>
               {tab === 'chat'
-                ? voiceMode ? 'Listening live' : 'Speak or type — I act on this PC'
+                ? voiceMode ? 'Voice on · listening in the background' : 'Voice off · type to continue'
                 : tab === 'setup'
                   ? stored.length > 0 ? `${stored.length} provider${stored.length > 1 ? 's' : ''} connected` : 'Connect a provider to begin'
                   : 'Voice, privacy, providers and memory'}
@@ -1619,19 +1677,12 @@ export default function App() {
               voiceEngine={voiceEngine}
               cloudConsentNeeded={cloudConsentNeeded}
               muted={muted}
-              hasProvider={stored.length > 0}
-              hasConversation={Boolean(activeConv)}
               interimTranscript={interimTranscript}
               calibrationQuestion={calibrationQuestion}
               calibrationStep={calibrationStep}
               voiceWarning={voiceWarning}
               voiceError={voiceError}
               speechPrivacyNeeded={speechPrivacyNeeded}
-              onEnableCloudSpeech={() => void enableCloudSpeech()}
-              onStartListening={() => void startListeningRef.current()}
-              onStopListening={stopListening}
-              onToggleMute={() => void toggleMute()}
-              onStopEverything={() => void stopEverything()}
               onOpenMicSettings={() => void window.companion.openSettings('ms-settings:privacy-microphone')}
             />
             <ChatStage
@@ -1639,14 +1690,13 @@ export default function App() {
               draft={draft}
               busy={busy}
               voiceMode={voiceMode}
+              muted={muted}
               speaking={speaking}
               voiceState={voiceState}
-              muted={muted}
               interimTranscript={interimTranscript}
               onDraftChange={setDraft}
               onSend={() => void sendDraft()}
               onSuggestion={(text) => void sendMessage(text)}
-              onToggleVoice={() => (voiceMode ? stopListening() : void startListening())}
             />
             {pendingAction && (
               <ConfirmModal
@@ -1655,6 +1705,29 @@ export default function App() {
                 busy={busy}
                 onConfirm={() => void confirmPendingAction()}
                 onReject={() => void rejectPendingAction()}
+              />
+            )}
+            {confirmVoiceOff && (
+              <ConfirmModal
+                eyebrow="Voice is the default"
+                title="Turn voice off?"
+                summary="Automata talks with you by default. With voice off it stays silent, stops listening, and only answers as text — until you switch it back on in the sidebar."
+                confirmLabel="Turn voice off"
+                confirmTone="danger"
+                rejectLabel="Keep voice on"
+                onConfirm={() => { setConfirmVoiceOff(false); void setVoiceEnabled(false); }}
+                onReject={() => setConfirmVoiceOff(false)}
+              />
+            )}
+            {voiceConsentPrompt && (
+              <ConfirmModal
+                eyebrow="One-time consent"
+                title="Allow cloud speech?"
+                summary="Voice needs short microphone clips transcribed by Google Gemini to understand you. Raw audio is never written to disk. You can revoke this any time in Settings → Voice."
+                confirmLabel="Allow and start listening"
+                rejectLabel="Not now"
+                onConfirm={() => void enableCloudSpeech()}
+                onReject={() => { setVoiceConsentPrompt(false); setVoiceWarning('Voice is on, but listening needs your OK. Allow cloud speech in Settings → Voice whenever you are ready.'); }}
               />
             )}
           </div>

@@ -5,14 +5,13 @@ type Props = {
   draft: string;
   busy: boolean;
   voiceMode: boolean;
+  muted: boolean;
   speaking: boolean;
   voiceState: string;
-  muted: boolean;
   interimTranscript: string;
   onDraftChange: (value: string) => void;
   onSend: () => void;
   onSuggestion: (text: string) => void;
-  onToggleVoice: () => void;
 };
 
 const SUGGESTIONS = [
@@ -28,14 +27,13 @@ export function ChatStage({
   draft,
   busy,
   voiceMode,
+  muted,
   speaking,
   voiceState,
-  muted,
   interimTranscript,
   onDraftChange,
   onSend,
   onSuggestion,
-  onToggleVoice,
 }: Props) {
   const orbClass = `orb ${voiceMode ? 'live' : ''} ${speaking ? 'speaking' : ''}`.trim();
 
@@ -48,11 +46,13 @@ export function ChatStage({
               <span className="orb-ring" />
               <span className="orb-core" />
             </div>
-            <h2>{voiceMode ? 'I am listening' : 'What should we do?'}</h2>
+            <h2>{muted ? 'What should we do?' : voiceMode ? 'I am listening' : 'Voice is on'}</h2>
             <p>
-              {voiceMode
-                ? 'Speak naturally — I act on this PC and only claim what I can observe.'
-                : 'Tap the mic and talk, or type. I open apps, play media, read pages and mail aloud, and run OS tasks.'}
+              {muted
+                ? 'Voice is off in the sidebar. Turn it on to talk, or type. I open apps, play media, read pages and mail aloud, and run OS tasks.'
+                : voiceMode
+                  ? 'Speak naturally — I act on this PC and only claim what I can observe.'
+                  : 'Voice is on by default. I will start listening the moment the microphone is ready — or type a command to continue. I open apps, play media, read pages and mail aloud, and run OS tasks.'}
             </p>
             <div className="chips">
               {SUGGESTIONS.map((s) => (
@@ -97,24 +97,13 @@ export function ChatStage({
                 ? 'Thinking…'
                 : speaking
                   ? 'Speaking — say “stop” to interrupt'
-                  : voiceMode
-                    ? 'Listening live'
-                    : 'Enter to send · Shift+Enter for a new line'}
+                  : muted
+                    ? 'Voice off · Enter to send'
+                    : voiceMode
+                      ? 'Voice on · listening'
+                      : 'Voice on · ready'}
             </span>
             <div className="composer-right">
-              <button
-                className={`icon-btn mic ${voiceMode ? 'live' : ''}`}
-                title={voiceMode ? 'Pause listening' : 'Start listening'}
-                aria-label={voiceMode ? 'Pause listening' : 'Start listening'}
-                onClick={onToggleVoice}
-                disabled={busy || muted}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                  <rect x="9" y="3" width="6" height="11" rx="3" />
-                  <path d="M5 11a7 7 0 0 0 14 0" />
-                  <path d="M12 18v3" />
-                </svg>
-              </button>
               <button
                 className="icon-btn send"
                 title="Send"

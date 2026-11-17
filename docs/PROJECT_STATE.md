@@ -3,7 +3,20 @@
 Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a rebuilt voice-first UI over an ambient video backdrop. The product is now branded **Automata by HassanTech**. Release **v0.5.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a voice-first UI over an ambient video backdrop in which **speech is the default mode of communication**. The product is now branded **Automata by HassanTech**. Release **v0.6.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## Speech by default + background operation — v0.6.0 (2026-11-17)
+
+- ✅ **One voice control.** Removed the top-of-stage voice buttons (`Listen`, `Live voice is off`, `Mute`, `Stop everything`) and the composer mic button. A single modern **Voice switch** (`apps/desktop/src/renderer/components/VoiceSwitch.tsx`) now lives in the sidebar, **on by default** (`role="switch"`, `aria-checked="true"`), showing the live state (`Voice On · ready`).
+- ✅ **Confirmable off.** Because voice is the default mode, switching it off opens a confirmation modal (`ConfirmModal.tsx`, danger tone, "Turn voice off?"). Confirming runs `setVoiceEnabled(false)`: it persists `muted: true`, stops the listener, aborts the in-flight chat, stops TTS, rejects any pending action, and falls back to text-only replies until voice is switched back on.
+- ✅ **Informational status strip.** `VoiceDock.tsx` no longer renders any action buttons (all voice actions moved to the sidebar switch); it keeps the orb + headline (Listening · Thinking · Speaking · Voice off) and the only remaining control is the "Open Windows microphone privacy settings" shortcut.
+- ✅ **Accurate hero / composer copy.** `ChatStage.tsx` now keys "voice off" wording off the switch (`muted`) and "listening" off the live capture state, so "voice on but not yet listening" reads correctly ("Voice is on", "Voice on · ready").
+- ✅ **Background listening by default.** `packages/core/src/voice/speech.ts` defaults `listenWhenUnfocused: true` and normalizes with `record.listenWhenUnfocused !== false`; `packages/core/src/voice/speech.test.ts` asserts both the default and the explicit-off case. **Settings → Voice** gains "Keep working in the background (listen, speak and act while unfocused)".
+- ✅ **Main-process background operation.** `apps/desktop/src/main/index.ts`: `webPreferences.backgroundThrottling: false`; closing the window now hides it to the tray (`isQuitting` guard, `event.preventDefault()`, `window.hide()`, `setSkipTaskbar(true)` on Windows) instead of quitting; new `apps/desktop/resources/tray.png` (32×32) with a `trayImage()` helper; tray tooltip "Automata — running in the background"; tray `Show`/click re-show + focus; tray `Exit` and `before-quit` set `isQuitting`; `activate` re-shows an existing window. Fixed `app.setAppUserModelId` to `com.hassantech.automata`.
+- ✅ Version bumped `0.5.0 → 0.6.0` (root, `packages/core`, `apps/desktop` + `@automata/core` dep); lockfile re-synced.
+- ✅ Refreshed all five `docs/screenshots/*.png` and rebuilt `docs/demo.gif` (900×588, 10 fps, 10.6 s, ~4.3 MB) from the running renderer, and updated `README.md` / `CHANGELOG.md`.
+
+**Test Results:** 67 files / 539 tests passing, 0 type errors, 0 lint errors, build succeeds.
 
 ## Publication — Automata v0.5.0 shipped (2026-11-17)
 
@@ -490,7 +503,7 @@ npm run package
 - Real Windows lock/secure-desktop/elevated target transitions were not exercised; the foreground token-integrity probe and lifecycle markers are implemented and smoke-tested, but runtime security transition evidence is pending.
 - `sendWhatsAppMessage` still has no UI-automation observation; it correctly reports `typed_but_unconfirmed`, but `sent/verified` can never become true yet.
 - Greeting composer is integrated into the renderer with persisted mute/quiet-hour settings and was audibly spoken through WinRT; editable pronunciation and <=3 s UI-ready timing remain unmeasured.
-- Mute is renderer state only; it stops the active listener and TTS, but the preference is not persisted and main-process TTS is not independently gated.
+- Voice on/off is persisted as `muted` in the voice settings, and switching voice off stops the active listener, aborts the in-flight chat, rejects a pending action and stops TTS in the renderer; main-process TTS is still not independently gated by `muted`, so a `speak` call issued directly from `main` is not blocked by the flag.
 - WinRT microphone recognition is blocked by the Windows speech privacy setting on this machine; the SAPI fallback starts but misrecognized loopback TTS (for example, one token at 0.003 confidence), so it is not yet a usable conversation input.
 - The voice helper and build script are Windows-only and require the Windows SDK `Windows.winmd` at build time; the packaged app ships the compiled helper and falls back if it is missing.
 - Injection corpus covers seven external origins and classes 1-3; fixture messenger, ranked media, proactive and learning-policy tests now run. Desktop chat no longer copies conversation content into learning by default, but producer wiring, kill tests and soak remain open.
@@ -511,4 +524,4 @@ npm run package
 
 ## Handover note
 
-Start with `docs/AGENT_BRIEF.md`, then this file, `docs/REQUIREMENTS.md`, `docs/GAPS.md`, `docs/VERIFICATION_LOG.md` section 14, and `docs/DECISIONS/`. The code is in `companion/`; the v3 brief is stricter than the old matrix. Trust code and test output over notes. Do not mark a row PASS without a recorded command and observed output. Do not push.
+Start with `docs/AGENT_BRIEF.md`, then this file, `docs/REQUIREMENTS.md`, `docs/GAPS.md`, `docs/VERIFICATION_LOG.md` section 14, and `docs/DECISIONS/`. The code is in `apps/` and `packages/` (the old `companion/` path no longer exists); the v3 brief is stricter than the old matrix. Trust code and test output over notes. Do not mark a row PASS without a recorded command and observed output. Do not push.

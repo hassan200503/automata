@@ -4,7 +4,7 @@
 
 <img src="apps/desktop/resources/icon.png" alt="Automata app icon" width="88" height="88" />
 
-![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D22.5.0-green.svg)
 ![Electron](https://img.shields.io/badge/electron-45-9BE349.svg)
@@ -53,7 +53,14 @@ Automata is a production-oriented Windows desktop application that turns natural
 
 Automata does not just execute commands. It reasons over a layered cognition pipeline, remembers what it learns, and is deliberately honest: it only claims an OS action succeeded when the action was actually observed. Every tool call passes through a policy engine with risk classes, rate limits, confirmation flows, an audit trail, and a global emergency stop.
 
-### What's New in v0.5.0
+### What's New in v0.6.0
+
+- **Speech is the default.** Automata now talks and listens by default. The old row of controls above the stage (**Listen · Live voice is off · Mute · Stop everything**) is gone, replaced by one modern **Voice switch in the sidebar** that is **on out of the box**. Because voice is the default mode of communication, turning it **off asks for confirmation**: flipping it off stops listening, aborts the in-flight reply, stops any speech, rejects a pending action, and then keeps answering as text until you switch voice back on.
+- **Works in the background.** Automata keeps listening, speaking and running OS commands while the window is hidden or minimised. Background voice is on by default, the window is created with `backgroundThrottling: false` so audio, timers and the speech bridge stay alive, and **closing the window minimises to the system tray** instead of quitting — the tray menu offers **Show**, **Pause/Resume background**, **Start with Windows** and a real **Exit**. **Settings → Voice → "Keep working in the background"** toggles the listen-while-unfocused behaviour.
+- **A quiet voice status strip.** The top of Talk is now an informational strip that says what Automata is doing (*Listening · Thinking · Speaking · Voice off*) rather than a toolbar; all voice actions live in the sidebar switch. The only control it keeps is the "Open Windows microphone privacy settings" shortcut, shown when Windows blocks the mic.
+- **Refreshed screenshots and demo** for the voice-on-by-default shell, plus a fix so the Windows app identity is `com.hassantech.automata` (not the pre-rename `com.kkc36.companion`).
+
+### Previously in v0.5.0
 
 - **New name and home.** The project is now **Automata by HassanTech** (formerly "Companion"), and the repository is a single, clean workspace — the legacy WhatsApp bot that used to sit in the repo root has been removed (its history is preserved in git). The installer, window title, tray tip, app icon, credential store and every user-facing string now carry the Automata brand.
 - **Ambient video backdrop.** The whole shell now sits over a looping, muted ambient video (`<video>` with `autoPlay`, `loop`, `playsInline`) rendered behind the rail and stage. It ships with a still-frame **poster** as the first-paint placeholder and the **`prefers-reduced-motion`** fallback, so nothing flashes and nothing moves for users who asked it not to.
@@ -236,7 +243,7 @@ You need one thing to make Automata useful: a model key. A free one takes about 
 2. **Paste it in** — in Automata open **Settings → Providers**, choose **Google Gemini**, paste the key. It is stored in **Windows Credential Manager** and validated inline before it is saved.
 3. **Combine models (optional)** — connect a second provider and enable **Combined intelligence** in the same panel.
 4. **Set up voice** — **Settings → Voice** → enable cloud-speech consent → pick a voice → **Test**.
-5. **Talk** — press the mic in the voice dock, or just type. Try: _"what can you do?"_
+5. **Talk** — voice is **on by default**, so just speak. To stop talking, flip the **Voice** switch in the sidebar (it asks you to confirm). You can also type any time. Try: _"what can you do?"_
 
 Out of ideas? **[Recipes](docs/RECIPES.md)** has 10 concrete things to try.
 

@@ -5,34 +5,36 @@ type Props = {
   voiceEngine: string;
   cloudConsentNeeded: boolean;
   muted: boolean;
-  hasProvider: boolean;
-  hasConversation: boolean;
   interimTranscript: string;
   calibrationQuestion: string;
   calibrationStep: string | null;
   voiceWarning: string;
   voiceError: string;
   speechPrivacyNeeded: boolean;
-  onEnableCloudSpeech: () => void;
-  onStartListening: () => void;
-  onStopListening: () => void;
-  onToggleMute: () => void;
-  onStopEverything: () => void;
   onOpenMicSettings: () => void;
 };
 
 export function VoiceDock(props: Props) {
   const {
     voiceMode, speaking, voiceState, voiceEngine, cloudConsentNeeded, muted,
-    hasProvider, hasConversation, interimTranscript, calibrationQuestion, calibrationStep,
-    voiceWarning, voiceError, speechPrivacyNeeded,
-    onEnableCloudSpeech, onStartListening, onStopListening, onToggleMute, onStopEverything, onOpenMicSettings,
+    interimTranscript, calibrationQuestion, calibrationStep,
+    voiceWarning, voiceError, speechPrivacyNeeded, onOpenMicSettings,
   } = props;
 
   const activity = voiceState === 'processing' ? 'thinking' : speaking ? 'speaking' : voiceMode ? 'live' : '';
-  const headline = voiceMode
-    ? speaking ? 'Speaking' : voiceState === 'processing' ? 'Thinking' : voiceState === 'starting' ? 'Opening the microphone' : 'Listening'
-    : cloudConsentNeeded ? 'Voice needs your OK' : 'Live voice is off';
+  const headline = speaking
+    ? 'Speaking'
+    : voiceState === 'processing'
+      ? 'Thinking'
+      : voiceState === 'starting'
+        ? 'Opening the microphone'
+        : voiceMode
+          ? 'Listening'
+          : cloudConsentNeeded
+            ? 'Voice is on — waiting for your OK'
+            : muted
+              ? 'Voice off — replies as text'
+              : 'Ready — voice is on';
 
   return (
     <div className={`voicebar ${activity}`}>
@@ -47,20 +49,10 @@ export function VoiceDock(props: Props) {
             ? `Mic active · ${voiceEngine === 'gemini' ? 'Gemini transcription' : `${voiceEngine} engine`} · audio is not stored`
             : cloudConsentNeeded
               ? 'Short clips are transcribed by Gemini. Nothing is saved as an audio file.'
-              : 'Speech is the primary way to talk. Text always works too.'}
+              : muted
+                ? 'Turn voice back on in the sidebar when you want to talk again.'
+                : 'Speak naturally — I keep listening and acting even when this window is in the background.'}
         </span>
-      </div>
-      <div className="vb-actions">
-        {cloudConsentNeeded && !voiceMode && (
-          <button className="primary" onClick={onEnableCloudSpeech} disabled={!hasConversation || muted || !hasProvider}>
-            Enable cloud speech
-          </button>
-        )}
-        {voiceMode
-          ? <button onClick={onStopListening}>Pause</button>
-          : !cloudConsentNeeded && <button onClick={onStartListening} disabled={!hasConversation || muted}>Listen</button>}
-        <button onClick={onToggleMute}>{muted ? 'Unmute' : 'Mute'}</button>
-        <button className="danger" onClick={onStopEverything}>Stop everything</button>
       </div>
       {voiceMode && (
         <div className="vb-line">

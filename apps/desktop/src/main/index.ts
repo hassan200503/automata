@@ -134,6 +134,7 @@ let defaultModel = '';
 let tray: Tray | null = null;
 let backgroundScheduler: Scheduler | null = null;
 let backgroundPaused = false;
+let isQuitting = false;
 const emergencyStop = new EmergencyStop();
 const activeChatControllers = new Set<AbortController>();
 let sessionLocked = false;
@@ -1900,15 +1901,23 @@ function registerIpc(): void {
   });
 }
 
-function createTray(): void {
-  const icon = nativeImage.createFromDataURL(
+function trayImage(): ReturnType<typeof nativeImage.createFromPath> {
+  const fromDisk = nativeImage.createFromPath(join(app.getAppPath(), "resources", "tray.png"));
+  if (!fromDisk.isEmpty()) return fromDisk;
+  const fromIcon = nativeImage.createFromPath(join(app.getAppPath(), "resources", "icon.png"));
+  if (!fromIcon.isEmpty()) return fromIcon.resize({ width: 16, height: 16 });
+  return nativeImage.createFromDataURL(
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
   );
+}
+
+function createTray(): void {
+  const icon = trayImage();
   tray = new Tray(icon);
-  tray.setToolTip("Automata");
+  tray.setToolTip("Automata — running in the background");
   const updateMenu = () => {
     const menu = Menu.buildFromTemplate([
-      { label: "Show", click: () => mainWindow?.show() },
+      { label: "Show", click: () => { mainWindow?.show(); mainWindow?.focus(); } },
       { type: "separator" },
       {
         label: backgroundPaused ? "Resume background" : "Pause background",
@@ -1924,12 +1933,12 @@ function createTray(): void {
          click: () => setStartupEnabled(!startupEnabled()),
        },
       { type: "separator" },
-      { label: "Exit", click: () => app.quit() },
+      { label: "Exit", click: () => { isQuitting = true; app.quit(); } },
     ]);
     tray?.setContextMenu(menu);
   };
   updateMenu();
-  tray.on("click", () => mainWindow?.show());
+  tray.on("click", () => { mainWindow?.show(); mainWindow?.focus(); });
 }
 
 
@@ -1949,7 +1958,10 @@ async function createWindow(): Promise<void> {
       sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
-      webSecurity: true
+      webSecurity: true,
+      // Background voice: keep timers, audio and the speech bridge alive when
+      // the window is hidden or minimised so Automata can keep listening and acting.
+      backgroundThrottling: false
     }
   });
 
@@ -1957,6 +1969,21 @@ async function createWindow(): Promise<void> {
   sessionTokens.set(window.webContents.id, sessionToken);
 
   const webContentsId = window.webContents.id;
+
+  // Closing the window keeps Automata alive in the tray so it can keep working
+  // in the background. Quit from the tray menu (or Cmd/Ctrl+Q) exits for real.
+  window.on("close", (event) => {
+    if (isQuitting) return;
+    event.preventDefault();
+    window.hide();
+    if (process.platform === "win32") {
+      window.setSkipTaskbar(true);
+    }
+  });
+
+  window.on("show", () => {
+    if (process.platform === "win32") window.setSkipTaskbar(false);
+  });
 
   window.on("closed", () => {
     sessionTokens.delete(webContentsId);
@@ -1996,7 +2023,7 @@ if (singleInstanceLock) {
   });
 
 app.whenReady().then(async () => {
-  app.setAppUserModelId("com.kkc36.companion");
+  app.setAppUserModelId("com.hassantech.automata");
   session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
     callback(permission === "media");
   });
@@ -2052,6 +2079,11 @@ app.whenReady().then(async () => {
   createTray();
 
   app.on("activate", () => {
+    if (mainWindow) {
+      mainWindow.show();
+      mainWindow.focus();
+      return;
+    }
     if (BrowserWindow.getAllWindows().length === 0) {
       void createWindow().catch((error: unknown) => {
         logger.error("failed to recreate desktop window", { error });
@@ -2071,6 +2103,7 @@ app.on("window-all-closed", () => {
 });
 
 app.on("before-quit", () => {
+  isQuitting = true;
   writeLifecycleMarker('stop-marker.json', { reason: 'owner_exit' });
   if (heartbeatTimer) clearInterval(heartbeatTimer);
   heartbeatTimer = null;

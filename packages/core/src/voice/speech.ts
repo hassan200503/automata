@@ -62,7 +62,7 @@ export const defaultVoiceSettings: VoiceSettings = {
   proactiveDailyCap: 3,
   proactiveIdleMinutes: 8,
   engine: 'auto',
-  listenWhenUnfocused: false,
+  listenWhenUnfocused: true,
   cloudSpeechConsent: false,
   recentGreetings: []
 };
@@ -156,7 +156,7 @@ export function normalizeVoiceSettings(raw: unknown): VoiceSettings {
     proactiveIdleMinutes: clampInteger(record.proactiveIdleMinutes, 1, 240, defaultVoiceSettings.proactiveIdleMinutes),
     pronunciation: cleanString(record.pronunciation, 120) || undefined,
     engine,
-    listenWhenUnfocused: record.listenWhenUnfocused === true,
+    listenWhenUnfocused: record.listenWhenUnfocused !== false,
     cloudSpeechConsent: record.cloudSpeechConsent === true,
     speakerVerificationEnabled: record.speakerVerificationEnabled === true,
     recentGreetings: recent

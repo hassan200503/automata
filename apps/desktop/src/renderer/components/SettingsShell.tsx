@@ -24,6 +24,7 @@ type VoiceSettingsLike = {
   pitch?: number;
   cloudSpeechConsent?: boolean;
   autoStart?: boolean;
+  listenWhenUnfocused?: boolean;
   bargeIn?: boolean;
   proactiveQuestions?: boolean;
   quietHours?: { start?: string; end?: string };
@@ -113,7 +114,7 @@ export function SettingsShell(props: Props) {
         {props.section === 'voice' && (
           <section className="panel">
             <h3>Voice</h3>
-            <p className="muted">Neural Windows voices are preferred when available. Conversation TTS uses WinRT SSML.</p>
+            <p className="muted">Voice is the default way to talk with Automata. Neural Windows voices are preferred when available; conversation TTS uses WinRT SSML.</p>
             <select aria-label="Voice" value={props.voiceSettings?.voice || ''} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, voice: e.target.value })}>
               <option value="">System default (prefer neural)</option>
               {props.voiceVoices.map((voice) => (
@@ -133,6 +134,10 @@ export function SettingsShell(props: Props) {
             <label className="checkbox-row">
               <input type="checkbox" checked={props.voiceSettings?.autoStart !== false} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, autoStart: e.target.checked })} />
               Start listening automatically
+            </label>
+            <label className="checkbox-row">
+              <input type="checkbox" checked={props.voiceSettings?.listenWhenUnfocused !== false} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, listenWhenUnfocused: e.target.checked })} />
+              Keep working in the background (listen, speak and act while unfocused)
             </label>
             <label className="checkbox-row">
               <input type="checkbox" checked={props.voiceSettings?.bargeIn !== false} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, bargeIn: e.target.checked })} />
