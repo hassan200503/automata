@@ -533,6 +533,47 @@ export default function App() {
     }
   }
 
+  /**
+   * A provider key was just saved during onboarding: finish the voice guide
+   * automatically and drop the owner straight into the workspace instead of
+   * leaving them stuck on the "Connect Gemini" step waiting to say continue.
+   */
+  async function finishVoiceGuideAfterProvider(nextGuide: VoiceGuideProgress, hasProvider: boolean): Promise<void> {
+    const advanced = advanceVoiceGuide(nextGuide, 'continue', { providerConnected: hasProvider });
+    const completed: VoiceGuideProgress = {
+      ...advanced.progress,
+      currentStep: 'complete',
+      completedAt: new Date().toISOString()
+    };
+    voiceGuideRef.current = completed;
+    setVoiceGuide(completed);
+    setGuideAnswer('');
+    setGuidePrompt('');
+    await persistVoiceGuideDraft(completed);
+    const line = speakableGuideLine(advanced.acknowledgment || 'Provider connected.', getVoiceGuideStep('complete').prompt);
+    if (line) {
+      setMessages((prev) => [...prev, {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: line,
+        createdAt: new Date().toISOString()
+      }]);
+      await speakReply(line);
+    }
+    try {
+      await window.companion.onboardingRun();
+      setOnboarding(await window.companion.onboardingGetState());
+    } catch { /* system check is best-effort */ }
+    guideActiveRef.current = false;
+    setGuideActive(false);
+    setVoiceError('');
+    setStatus('Provider connected. Setup complete — you can talk naturally now.');
+    setTab('chat');
+    if (completed.draft.cloudSpeechConsent && hasProvider) {
+      await startListening();
+    }
+  }
+
   async function startVoiceOnboarding(): Promise<void> {
     const fresh = createVoiceGuideProgress({
       startedAt: new Date().toISOString(),
@@ -628,14 +669,19 @@ export default function App() {
       setValidation(result);
       setStatus(`Saved ${selected.displayName}. ${result.model ? 'Default model: ' + result.model : ''}`);
       if (guideActiveRef.current) {
-        const nextGuide = {
+        const nextGuide: VoiceGuideProgress = {
           ...voiceGuideRef.current,
           draft: { ...voiceGuideRef.current.draft, providerConnected: nextStored.length > 0 }
         };
         voiceGuideRef.current = nextGuide;
         setVoiceGuide(nextGuide);
         await window.companion.onboardingSetVoiceGuide(nextGuide);
-        setStatus(`Saved ${selected.displayName}. Return to the voice guide and say continue.`);
+        if (voiceGuideRef.current.currentStep === 'provider' && nextStored.length > 0) {
+          // The guide is waiting on this key, so don't make the owner say continue.
+          await finishVoiceGuideAfterProvider(nextGuide, nextStored.length > 0);
+        } else {
+          setStatus(`Saved ${selected.displayName}. Return to the voice guide and say continue.`);
+        }
       }
     } catch (e) {
       setError(String(e));

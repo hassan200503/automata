@@ -609,4 +609,15 @@ This pass makes speech the default mode of communication, replaces the top-of-st
 
 Honesty caveats for this pass: (1) screenshots/GIF and the DOM probe use a **stubbed preload** on the Linux host — the real main process needs Windows native modules and cannot start here — so the captures show the real shipped renderer against representative data, not a live Windows session; (2) the mic fails on the Linux host (`NotFoundError: Requested device not found`), so the dock reads "Ready — voice is on" rather than "Listening"; that error line is hidden in the captures only, and on Windows the same state reads "Listening"; (3) close-to-tray, `backgroundThrottling` and tray behaviour are code-verified but **not** exercised on a real Windows session; (4) the installer is unsigned and was not installed on Windows.
 
+## 42. Onboarding fix: saving a provider key auto-completes the voice guide (2026-11-17)
+
+Bug: in the first-run voice guide, step 10 of 11 ("Connect Gemini", `awaitsAction: true`) waited for the owner to say "continue" after saving a key. Saving only set `draft.providerConnected` and the status "…Return to the voice guide and say continue", so the owner stayed stuck on the provider step instead of moving on.
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-124 | Fix in `apps/desktop/src/renderer/App.tsx`: added `finishVoiceGuideAfterProvider(nextGuide, hasProvider)` — advances the guide past `provider`, sets `currentStep: 'complete'` + `completedAt`, persists the draft (persona calibration + preset), speaks the completion line, runs the system check, clears `guideActive`, switches to the chat workspace and starts listening when consent is on. `saveKey()` now calls it when `guideActiveRef.current.currentStep === 'provider'` and a key is stored | PASS: saving a Gemini key during onboarding finishes the guide and lands directly in the workspace; a key saved outside the provider step keeps the previous "say continue" behaviour. |
+| V-125 | `npm run typecheck`, `npm run lint`, `npm test` from the repository root | PASS: TypeScript clean, ESLint 0 errors, **67 test files / 539 tests passed**. |
+
+Honesty caveat: verified by type/lint/test and code inspection; the redirect was not driven end-to-end in a live Windows session against a real credential store.
+
 
