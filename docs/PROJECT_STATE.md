@@ -5,6 +5,13 @@ Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
 Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a rebuilt voice-first UI over an ambient video backdrop. The product is now branded **Automata by HassanTech**. Release **v0.5.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
 
+## Publication — Automata v0.5.0 shipped (2026-11-17)
+
+- ✅ The GitHub repository was renamed `personal-companion-bot → hassan200503/automata`, with a description, homepage, 12 topics and Discussions enabled.
+- ✅ `main` and tag `v0.5.0` were pushed; **Automata CI** and **Release** both completed green on the Windows runner.
+- ✅ Release **v0.5.0** is published with `Automata-0.5.0-x64.exe` (124,654,463 B, the Windows-CI build) and `SHA256SUMS.txt`; the release body now embeds the installer SHA-256 (`7fe7c78f…c97b6c5`) and a `certutil -hashfile` instruction, and every future release does too (`.github/workflows/release.yml`, V-113).
+- ✅ Community scaffolding: `CODE_OF_CONDUCT.md`, issue forms, a PR template, a Discussion ("Show us what you automated"), and four `good first issue`s on genuinely untested modules.
+
 ## Rebrand to Automata + Monorepo Unification — v0.5.0 (2026-11-17)
 
 **Repository unified into one workspace:**
