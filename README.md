@@ -85,7 +85,8 @@ Speak a command; the router classifies it, the policy engine clears it, and the 
 
 The provider layer is a priority router with circuit breakers, quota tracking, retries, and automatic failover across **8 cloud providers** (Gemini, OpenRouter, Groq, NVIDIA, DeepSeek, OpenAI, Anthropic, Perplexity), any number of **custom OpenAI-compatible endpoints**, and the **ensemble**. The ensemble fans out the same request to every connected model, scores each answer, and keeps the strongest — so Automata can draw on Claude, GPT, Gemini, DeepSeek and others at once.
 
-You can also add a new provider and configure your API key.
+You can also add a new provider and configure your API key ☑️.
+
 
 - **Failover, never a single point of failure** — models are registered by priority; a failing provider trips its circuit breaker and traffic moves on.
 - **Streaming** — the strongest member streams tokens for low-latency replies.
@@ -405,7 +406,7 @@ Copyright (c) 2026 HassanTech.
 
 **Automata** is a Windows-first, voice-first automation assistant built on Electron, React and a framework-neutral TypeScript core. It is designed around two principles: **do real work on the PC**, and **be honest about it** — it only reports an action as done when the result was observed.
 
-Built and maintained by **Hassan Tsuma** at **HassanTech**.
+Built and maintained by **Hassan Tsuma**.
 
 - **GitHub** — [@hassan200503](https://github.com/hassan200503)
 - **LinkedIn** — [hassan-karungwa](https://www.linkedin.com/in/hassan-karungwa)
