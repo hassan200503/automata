@@ -510,3 +510,18 @@ The live WinRT microphone path, real owner speech, barge-in timing and raw-audio
 | --- | --- | --- |
 | V-82 | `npm.cmd run verify` from `companion/` | PASS: ESLint 0 errors / 0 warnings, TypeScript clean, 49 test files / 311 tests, Electron main/preload/supervisor and Vite renderer builds completed. Covers IMAP/SMTP helpers, research tools, owner-seed, proactive career/email candidates, and WinRT SSML pitch. |
 | V-83 | `npm.cmd run package -w @companion/desktop`; `Get-FileHash` SHA256 on `apps/desktop/release/Companion-0.1.0-x64.exe` | PASS: NSIS x64 installer rebuilt after production hardening. Artifact `Companion-0.1.0-x64.exe` is 122,837,891 bytes; SHA-256 `32E04C31DFB2FD78CC7C02996BBE8174B0F2138DF1AA2A14CADE86675143B8E8`; unsigned (expected without G4). Bundled helper `resources/voice/CompanionVoice.exe` is 23,552 bytes. |
+
+## 34. Combined multi-model answer path (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-84 | `npm run verify` from `companion/` (lint + typecheck + test + build) | PASS: ESLint 0 errors, TypeScript clean, 67 test files / 532 tests passed (up from 66 / 515), Electron main/preload/supervisor and Vite renderer builds completed. The 17 new tests in `packages/core/src/providers/ensemble.test.ts` cover response scoring (empty/refusal/JSON), the default best-of judge, majority voting, best-of/fastest/majority complete paths, timeout keeping arrived candidates, throwing `provider_down` when every member fails, single-member short-circuit, an injected judge, abort propagation, health/capabilities merging, and streaming from the highest-weight member. |
+
+The ensemble is unit-verified and wired through IPC/UI; it has not been exercised against live provider accounts, and the desktop renderer was not launched under CDP in this pass.
+
+## 35. Premium UI refresh (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-85 | `npm run build -w @companion/desktop` and `npm run verify` from `companion/`; inspect Vite CSS bundle size | PASS: the renderer CSS bundle changed from 15.22 kB to 17.99 kB after the token palette and component refinements; the full gate stayed green. This is a build/packaging check only — the refreshed surfaces were not visually reviewed in this Linux sandbox (the app is Windows-first). |
+

@@ -5,6 +5,8 @@ Method: read the implementation, run `npm.cmd run verify` from `companion/` (42 
 
 Baseline evidence: `docs/VERIFICATION_LOG.md` section 14. Safety-slice evidence: section 15. Earlier catalog rows remain in `docs/REQUIREMENTS_MATRIX.md`; this registry is the v3 source of truth.
 
+Note (2026-11-17): the combined multi-model answer path and the renderer UI refresh added on 2026-11-17 do not change any SC row below; `npm run verify` from `companion/` passed with 67 files / 532 tests, 0 lint errors and 0 type errors. No SC row was re-graded in this pass.
+
 ## Success criteria
 
 | ID | Acceptance check | Status | Evidence |

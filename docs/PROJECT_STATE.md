@@ -1,9 +1,32 @@
 # Project State
 
-Last updated: 2026-11-16
+Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, window management, text input, clipboard, file ops, web reading, WhatsApp calling). Latest verify: 66 files / 515 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, window management, text input, clipboard, file ops, web reading, WhatsApp calling) plus a combined multi-model answer path and a premium dark UI refresh. Latest verify: 67 files / 532 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## Multi-Model Combine + Premium UI (2026-11-17)
+
+**Combined intelligence (ensemble router):**
+- ✅ `EnsembleProvider` (`packages/core/src/providers/ensemble.ts`) implements `ChatProvider`: fans out one request to every connected provider in parallel, scores responses (refusal/empty/JSON aware) and returns the strongest answer. Strategies: `best-of` (default), `majority`, `fastest`.
+- ✅ Registered in the desktop main process at priority 50 behind a persisted `provider.ensemble` setting (enabled by default once two or more providers are connected); individual providers stay registered at priority 100 for streaming and failover.
+- ✅ IPC `providers:ensembleGet` / `providers:ensembleSet`; preload + renderer typings added.
+- ✅ Settings → Providers now shows a "Combined intelligence" card with an active/waiting/off status pill and a toggle.
+- ✅ 17 new tests in `ensemble.test.ts` (scoring, judges, best-of/fastest/majority, timeout keeps arrived candidates, throws when all fail, single-member short-circuit, injected judge, abort propagation, health/capabilities, stream from highest weight).
+
+**Premium UI refresh:**
+- ✅ Near-black neutral token palette with champagne-gold accent, aurora-mint secondary and a cool ambient glow; retuned radii, borders, shadows and a focus glow.
+- ✅ Refined sidebar/brand mark, nav active indicator, glass panels, polished inputs with focus rings, primary-button gradient, chat bubbles, voice panel states and orb, alerts, settings nav and on-brand scrollbars.
+- ✅ CSS bundle grew 15.22 kB → 17.99 kB; build and full `npm run verify` pass.
+
+**Test Results:**
+- 67 files / 532 tests passing (up from 66 / 515)
+- 0 type errors, 0 lint errors
+- Build succeeds
+
+**Build fix:**
+- ✅ `apps/desktop/package.json` now depends on `@companion/core` `0.2.0` (was `0.1.0`), so `npm install` resolves the workspace package locally.
+
 
 ## Production Readiness Sprint - Full OS Control (2026-11-16)
 
