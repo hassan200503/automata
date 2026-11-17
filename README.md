@@ -55,43 +55,14 @@ Automata does not just execute commands. It reasons over a layered cognition pip
 
 ### What's New in v0.6.1
 
-- **First-run setup no longer gets stuck.** On the voice-guided setup, step 10 of 11 ("Connect Gemini") used to park you on that step after you saved a key, until you said "continue". Saving a provider key now **finishes setup and drops you straight into the workspace**.
-
-### Previously in v0.6.0
-
 - **Speech is the default.** Automata now talks and listens by default. The old row of controls above the stage (**Listen · Live voice is off · Mute · Stop everything**) is gone, replaced by one modern **Voice switch in the sidebar** that is **on out of the box**. Because voice is the default mode of communication, turning it **off asks for confirmation**: flipping it off stops listening, aborts the in-flight reply, stops any speech, rejects a pending action, and then keeps answering as text until you switch voice back on.
 - **Works in the background.** Automata keeps listening, speaking and running OS commands while the window is hidden or minimised. Background voice is on by default, the window is created with `backgroundThrottling: false` so audio, timers and the speech bridge stay alive, and **closing the window minimises to the system tray** instead of quitting — the tray menu offers **Show**, **Pause/Resume background**, **Start with Windows** and a real **Exit**. **Settings → Voice → "Keep working in the background"** toggles the listen-while-unfocused behaviour.
 - **A quiet voice status strip.** The top of Talk is now an informational strip that says what Automata is doing (*Listening · Thinking · Speaking · Voice off*) rather than a toolbar; all voice actions live in the sidebar switch. The only control it keeps is the "Open Windows microphone privacy settings" shortcut, shown when Windows blocks the mic.
 - **Refreshed screenshots and demo** for the voice-on-by-default shell, plus a fix so the Windows app identity is `com.hassantech.automata` (not the pre-rename `com.kkc36.companion`).
 
-### Previously in v0.5.0
 
-- **New name and home.** The project is now **Automata by HassanTech** (formerly "Companion"), and the repository is a single, clean workspace — the legacy WhatsApp bot that used to sit in the repo root has been removed (its history is preserved in git). The installer, window title, tray tip, app icon, credential store and every user-facing string now carry the Automata brand.
-- **Ambient video backdrop.** The whole shell now sits over a looping, muted ambient video (`<video>` with `autoPlay`, `loop`, `playsInline`) rendered behind the rail and stage. It ships with a still-frame **poster** as the first-paint placeholder and the **`prefers-reduced-motion`** fallback, so nothing flashes and nothing moves for users who asked it not to.
-- **Glass surfaces, same legibility.** The rail, top bar, panels, hero and composer were moved to translucent glass (`backdrop-filter: blur()`) so the loop reads through the UI while text keeps its contrast. The renderer CSP gained the `media-src 'self'` directive the bundled video needs.
-- **App icon taken from the backdrop.** The 512 px PNG and the multi-size Windows `.ico` (16–256 px) are a centred frame cropped from that same video, wired into the NSIS installer, the uninstaller and the app window — the app now looks like what it looks like.
-- **Refreshed screenshots** for every view, captured from the running app with the backdrop live.
 
-### Previously in v0.4.0
 
-- **Rebuilt interface — a voice-first, Grok-style shell.** The renderer was rebuilt around a persistent left **rail** (Talk · Setup · Settings, a **New chat** action, conversation history with per-item delete, and live runtime / connected / honesty cards), a slim contextual **top bar** with status pills, and a centred stage. **Talk** opens on an empty-state hero — an animated orb and five one-tap suggestion chips — above message bubbles and a **sticky composer** (Enter to send, Shift+Enter for a new line, with live mic and send buttons). **Setup** is a voice-guided hero plus panels; **Settings** is a section rail (Voice · Persona · Privacy · Email · Payments · Providers · Memory · Data) over the matching panels.
-- **A disciplined design system.** Near-black canvas (`#09090b`), layered surfaces, hairline borders, a single white/silver accent with mint "live" and amber "warm" states, Inter with stylistic alternates, and shared radius and shadow tokens. The rail collapses to an overlay menu at ≤960 px.
-- **Proper application icon.** A multi-size Windows `.ico` (16–256 px) and a 512 px PNG, wired into the NSIS installer, the uninstaller and the app window.
-- **MIT licensed.** The project now ships an explicit [MIT LICENSE](LICENSE).
-
-### Previously in v0.3.0
-
-- **Combined intelligence (multi-model ensemble)** — an `EnsembleProvider` queries every connected model in parallel and returns the single strongest answer using a deterministic `best-of` / `majority` / `fastest` selector, with an auditable per-run log. Enable it with one toggle in **Settings → Providers**.
-- **Expanded OS control** — power actions (`os.power`: shutdown / restart / hibernate with optional delay) and window geometry (`os.moveWindow`, `os.resizeWindow`) brought the OS tool set to **37 tools**, plus natural-language patterns for each.
-- **Refreshed documentation and screenshots** — this README, updated release metadata and real UI captures.
-
-### Previously in v0.2.0
-
-- Full OS control surface (volume, brightness, media keys, lock/sleep, app switching, window management, process control, text input, clipboard, file ops, web reading, WhatsApp calling).
-- Natural-language command router with ~30 regex patterns.
-- Streaming cognition output, byte-size response-cache eviction, conversation-lock cleanup.
-
----
 
 ## Key Capabilities
 
