@@ -11,6 +11,8 @@ Note (2026-11-17, v0.4.0): the renderer was rebuilt into the voice-first shell (
 
 Note (2026-11-17, v0.5.0): the shell gained an ambient looping video backdrop (with a poster still and a `prefers-reduced-motion` fallback), the surrounding surfaces became translucent glass, and the app icon is now a frame cropped from that video. The renderer CSP added the `media-src 'self'` directive. This is presentation only — no SC row changes; the app icon now derives from the backdrop rather than a vector source.
 
+Note (2026-11-17, v0.5.0 rebrand): the product was renamed **Companion → Automata** (by HassanTech), the npm scope became `@automata/*`, and the repository was unified into a single root workspace (the legacy WhatsApp bot was removed; `companion/` was promoted to the root). `npm run verify` now runs from the repository root and passed with 67 files / 539 tests, 0 lint errors and 0 type errors. No SC row changes; no verification was re-run on Windows.
+
 ## Success criteria
 
 | ID | Acceptance check | Status | Evidence |

@@ -1,7 +1,14 @@
 # Gap List (v3 brief)
 
 Baseline: 2026-10-29. Graded against `docs/REQUIREMENTS.md`.
-Latest verification: 2026-11-17 (v0.5.0) — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the ambient video backdrop, the video-derived icon, the rebuilt UI, the MIT licence and the combined multi-model answer path.
+Latest verification: 2026-11-17 (v0.5.0) — `npm run verify` from the repository root passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the Automata rebrand, the rebranded monorepo unification, the ambient video backdrop, the video-derived icon, the rebuilt UI, the MIT licence and the combined multi-model answer path.
+
+## 2026-11-17 Update — Rebrand to Automata + monorepo unification (v0.5.0)
+
+- **Repository unified**: the legacy WhatsApp persona bot was removed and the Companion workspace was promoted to the repository root (`apps/`, `packages/`, root manifests). `companion/` no longer exists. The legacy bot's code is preserved in git history and the `archive/whatsapp-persona-bot` / `pre-automata` tags. Not a tracked gap.
+- **Brand rename** to **Automata** (by HassanTech): npm scope `@companion/* → @automata/*`, `productName`/`appId`/`author`/`copyright`, the window title, tray tip, `app.setName`, renderer `<title>`/`<h1>`/rail brand, the credential-store service name, the provider guide copy, the voice helper (`CompanionVoice` → `AutomataVoice`), and the CI workflow. Internal-only identifiers (`window.companion`, `--companion-session-token`, `CompanionDatabase`) were intentionally left. Not a tracked gap.
+- **Two behavioural caveats introduced by the rename**: (1) a key stored under the old credential service name `Companion` is not read under the new `Automata` service, so early testers must re-enter it; (2) app data moves from `%APPDATA%/Companion` to `%APPDATA%/Automata` with no migration. Both are acceptable before the first public Automata release.
+- No gap below changes status from this work.
 
 ## 2026-11-17 Update — Ambient video backdrop + video-derived icon (v0.5.0)
 

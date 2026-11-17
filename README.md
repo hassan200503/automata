@@ -1,8 +1,8 @@
-# Companion — Voice-First Windows AI Companion
+# Automata — Voice-First Windows AI Companion
 
 <div align="center">
 
-<img src="companion/apps/desktop/resources/icon.png" alt="Companion app icon" width="88" height="88" />
+<img src="apps/desktop/resources/icon.png" alt="Automata app icon" width="88" height="88" />
 
 ![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -15,9 +15,17 @@
 
 **A voice-first, autonomous Windows desktop assistant with full OS control, multi-model AI reasoning, and enterprise-grade safety.**
 
-[![Download](https://img.shields.io/badge/download-latest%20release-brightgreen.svg)](https://github.com/hassan200503/personal-companion-bot/releases)
+[![Download](https://img.shields.io/badge/download-latest%20release-brightgreen.svg)](https://github.com/hassan200503/automata/releases)
 
 </div>
+
+---
+
+## Demo
+
+![Automata UI walkthrough — Talk, Setup, Settings](docs/demo.gif)
+
+*A short walkthrough of the real renderer — **Talk → Setup → Settings**, with the ambient backdrop live. This is an honest UI walkthrough, not a recorded OS-action demo.*
 
 ---
 
@@ -41,12 +49,13 @@ Captured from the running Electron app (Electron 45 renderer, 1440×940).
 
 ## Overview
 
-Companion is a production-oriented Windows desktop application that turns natural language and voice into real OS actions. Speak or type a request and it runs against a **registry of 46 typed, risk-classified tools** — launching apps, playing media by name, reading web pages and email aloud, driving windows, typing text, managing files, and controlling system settings — while a **multi-model reasoning core** plans, streams, and explains what it is doing.
+Automata is a production-oriented Windows desktop application that turns natural language and voice into real OS actions. Speak or type a request and it runs against a **registry of 46 typed, risk-classified tools** — launching apps, playing media by name, reading web pages and email aloud, driving windows, typing text, managing files, and controlling system settings — while a **multi-model reasoning core** plans, streams, and explains what it is doing.
 
-The companion does not just execute commands. It reasons over a layered cognition pipeline, remembers what it learns, and is deliberately honest: it only claims an OS action succeeded when the action was actually observed. Every tool call passes through a policy engine with risk classes, rate limits, confirmation flows, an audit trail, and a global emergency stop.
+Automata does not just execute commands. It reasons over a layered cognition pipeline, remembers what it learns, and is deliberately honest: it only claims an OS action succeeded when the action was actually observed. Every tool call passes through a policy engine with risk classes, rate limits, confirmation flows, an audit trail, and a global emergency stop.
 
 ### What's New in v0.5.0
 
+- **New name and home.** The project is now **Automata by HassanTech** (formerly "Companion"), and the repository is a single, clean workspace — the legacy WhatsApp bot that used to sit in the repo root has been removed (its history is preserved in git). The installer, window title, tray tip, app icon, credential store and every user-facing string now carry the Automata brand.
 - **Ambient video backdrop.** The whole shell now sits over a looping, muted ambient video (`<video>` with `autoPlay`, `loop`, `playsInline`) rendered behind the rail and stage. It ships with a still-frame **poster** as the first-paint placeholder and the **`prefers-reduced-motion`** fallback, so nothing flashes and nothing moves for users who asked it not to.
 - **Glass surfaces, same legibility.** The rail, top bar, panels, hero and composer were moved to translucent glass (`backdrop-filter: blur()`) so the loop reads through the UI while text keeps its contrast. The renderer CSP gained the `media-src 'self'` directive the bundled video needs.
 - **App icon taken from the backdrop.** The 512 px PNG and the multi-size Windows `.ico` (16–256 px) are a centred frame cropped from that same video, wired into the NSIS installer, the uninstaller and the app window — the app now looks like what it looks like.
@@ -92,7 +101,7 @@ Speak a command; the router classifies it, the policy engine clears it, and the 
 
 ### Combined Intelligence — Multi-Model Reasoning
 
-The provider layer is a priority router with circuit breakers, quota tracking, retries, and automatic failover across **8 cloud providers** (Gemini, OpenRouter, Groq, NVIDIA, DeepSeek, OpenAI, Anthropic, Perplexity), any number of **custom OpenAI-compatible endpoints**, and the **ensemble**. The ensemble fans out the same request to every connected model, scores each answer, and keeps the strongest — so the companion can draw on Claude, GPT, Gemini, DeepSeek and others at once.
+The provider layer is a priority router with circuit breakers, quota tracking, retries, and automatic failover across **8 cloud providers** (Gemini, OpenRouter, Groq, NVIDIA, DeepSeek, OpenAI, Anthropic, Perplexity), any number of **custom OpenAI-compatible endpoints**, and the **ensemble**. The ensemble fans out the same request to every connected model, scores each answer, and keeps the strongest — so Automata can draw on Claude, GPT, Gemini, DeepSeek and others at once.
 
 - **Failover, never a single point of failure** — models are registered by priority; a failing provider trips its circuit breaker and traffic moves on.
 - **Streaming** — the strongest member streams tokens for low-latency replies.
@@ -168,7 +177,7 @@ The provider layer is a priority router with circuit breakers, quota tracking, r
 ├────────────────────────────────────────────────────────────────────┤
 │  AI providers (Gemini · OpenRouter · Groq · NVIDIA · DeepSeek ·    │
 │  OpenAI · Anthropic · Perplexity · custom)                         │
-│  Gmail · PayPal · WhatsApp Web (UI automation)                     │
+│  Gmail · PayPal · WhatsApp Desktop (UI automation)                 │
 │  Windows APIs (PowerShell · Win32 · WinRT TTS · UI Automation)     │
 └────────────────────────────────────────────────────────────────────┘
 ```
@@ -199,30 +208,37 @@ The provider layer is a priority router with circuit breakers, quota tracking, r
 
 ### Option 1 — Installer (recommended)
 
-1. Download the latest installer from [Releases](https://github.com/hassan200503/personal-companion-bot/releases).
-2. Run the wizard and launch **Companion** from the Start menu.
+1. Download the latest installer from [Releases](https://github.com/hassan200503/automata/releases).
+2. Run the wizard and launch **Automata** from the Start menu.
 3. Complete the guided onboarding.
+
+> **Windows may show "Windows protected your PC"** when you run the installer, because it is not code-signed (a certificate costs money and this project has none). Click **More info → Run anyway**, and verify the download against the **SHA-256 table in the release notes** before installing.
 
 ### Option 2 — Build from source
 
 **Prerequisites:** Windows 10/11 (64-bit), Node.js ≥ 22.5, npm ≥ 10.
 
 ```bash
-git clone https://github.com/hassan200503/personal-companion-bot.git
-cd personal-companion-bot/companion
+git clone https://github.com/hassan200503/automata.git
+cd automata
 
 npm install          # install workspaces
 npm start            # run in development
 npm run verify       # lint + typecheck + test + build
-npm run package      # produce a Windows NSIS installer (Companion-<version>-x64.exe)
+npm run package      # produce a Windows NSIS installer (Automata-<version>-x64.exe)
 ```
 
-### Quick start
+### 60-second quickstart
 
-1. **Connect a model** — Settings → Providers → add a Gemini key (or any catalog provider).
-2. **Combine models (optional)** — with two or more providers connected, enable **Combined intelligence**.
-3. **Set up voice** — Settings → Voice → enable cloud speech consent → pick a voice → test.
-4. **Talk** — press the microphone in the voice dock or type a command.
+You need one thing to make Automata useful: a model key. A free one takes about a minute.
+
+1. **Get a free key** — open **[Google AI Studio](https://aistudio.google.com/app/apikey)**, click **Create API key**, and copy it. (Gemini has a free tier; no card required.)
+2. **Paste it in** — in Automata open **Settings → Providers**, choose **Google Gemini**, paste the key. It is stored in **Windows Credential Manager** and validated inline before it is saved.
+3. **Combine models (optional)** — connect a second provider and enable **Combined intelligence** in the same panel.
+4. **Set up voice** — **Settings → Voice** → enable cloud-speech consent → pick a voice → **Test**.
+5. **Talk** — press the mic in the voice dock, or just type. Try: _"what can you do?"_
+
+Out of ideas? **[Recipes](docs/RECIPES.md)** has 10 concrete things to try.
 
 ---
 
@@ -310,22 +326,23 @@ Coverage spans tool schemas and risk classes, the policy engine and rate limitin
 - **Audit logging** records every autonomous action; **emergency stop** (`Ctrl+Shift+Esc`) halts everything; lock/focus gating pauses work when the screen locks or focus is lost.
 - **Untrusted content** (web pages, email bodies) is tagged and sanitized before it can influence a prompt.
 
-See [SECURE_SETUP.md](docs/SECURE_SETUP.md) and [THREAT_MODEL.md](docs/THREAT_MODEL.md) for details.
+See [SECURE_SETUP.md](docs/SECURE_SETUP.md) and [THREAT_MODEL.md](docs/THREAT_MODEL.md) for details, and [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ---
 
 ## Repository Layout
 
 ```
-personal-companion-bot/
-├── companion/                 # Windows-first desktop app (this project)
-│   ├── apps/desktop/          # Electron shell (main · preload · renderer)
-│   └── packages/core/         # Framework-neutral TypeScript core
-├── docs/                      # Spec, state, security and verification docs
-│   └── screenshots/           # UI screenshots used by this README
-├── src/ · scripts/ · data/    # Legacy WhatsApp persona bot (separate, unmaintained)
+automata/
+├── apps/desktop/          # Electron shell (main · preload · renderer) + NSIS packaging
+├── packages/core/         # Framework-neutral TypeScript core
+├── docs/                  # Spec, state, security and verification docs
+│   └── screenshots/       # UI screenshots and the demo GIF used by this README
+├── .github/               # CI and release workflows, issue/PR templates
 └── README.md
 ```
+
+Single npm-workspaces monorepo. `npm run verify` runs from the repo root.
 
 ---
 
@@ -333,12 +350,14 @@ personal-companion-bot/
 
 **User & operator**
 
+- [Recipes](docs/RECIPES.md) — 10 concrete things to try
 - [Secure Setup Guide](docs/SECURE_SETUP.md) — credential configuration
 - [Enterprise Ready](docs/ENTERPRISE_READY.md) — production-readiness checklist
 - [Gate Approvals](docs/DECISIONS/GATE_APPROVALS.md) — approval records
 
 **Developer**
 
+- [Development Guide](docs/DEVELOPMENT.md) — build, run and release
 - [Project State](docs/PROJECT_STATE.md) — implementation status and milestones
 - [Gap List](docs/GAPS.md) — known issues and improvement tracking
 - [Verification Log](docs/VERIFICATION_LOG.md) — test evidence
@@ -350,12 +369,14 @@ personal-companion-bot/
 
 ## Roadmap
 
+Tracked publicly in [ROADMAP.md](ROADMAP.md) and in the pinned roadmap issue.
+
 **Shipped**
 
 - Full OS control (37 tools) with natural-language routing
 - Multi-model reasoning: router, failover and combined-intelligence ensemble
 - Voice-first interaction with streaming replies
-- WhatsApp voice/video calling by name; media playback by name
+- WhatsApp Desktop voice/video calling by name; media playback by name
 - Web-page and email read-aloud with an untrusted-content boundary
 - Learning engine and weekly review
 - Encrypted storage, credential manager and risk-classified policy engine
@@ -384,7 +405,7 @@ git commit -m "feat: add your feature"
 git push origin feature/your-feature
 ```
 
-Commits follow conventional-commit prefixes. Never push to `main` directly.
+Commits follow conventional-commit prefixes. Never push to `main` directly. See [CONTRIBUTING.md](CONTRIBUTING.md) and grab a [`good first issue`](https://github.com/hassan200503/automata/labels/good%20first%20issue).
 
 ---
 
@@ -392,15 +413,15 @@ Commits follow conventional-commit prefixes. Never push to `main` directly.
 
 Released under the [MIT License](LICENSE).
 
-Copyright (c) 2026 Hassan Tsuma.
+Copyright (c) 2026 HassanTech.
 
 ---
 
 ## About
 
-**Companion** is a Windows-first, voice-first automation assistant built on Electron, React and a framework-neutral TypeScript core. It is designed around two principles: **do real work on the PC**, and **be honest about it** — it only reports an action as done when the result was observed.
+**Automata** is a Windows-first, voice-first automation assistant built on Electron, React and a framework-neutral TypeScript core. It is designed around two principles: **do real work on the PC**, and **be honest about it** — it only reports an action as done when the result was observed.
 
-Maintained by **Hassan**.
+Built and maintained by **Hassan Tsuma** at **HassanTech**.
 
 - **GitHub** — [@hassan200503](https://github.com/hassan200503)
 - **LinkedIn** — [hassan-karungwa](https://www.linkedin.com/in/hassan-karungwa)
@@ -412,6 +433,6 @@ Maintained by **Hassan**.
 
 **Built for the future of personal computing**
 
-[⬆ Back to top](#companion--voice-first-windows-ai-companion)
+[⬆ Back to top](#automata--voice-first-windows-ai-companion)
 
 </div>

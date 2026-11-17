@@ -3,7 +3,32 @@
 Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a rebuilt voice-first UI over an ambient video backdrop. Release **v0.5.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a rebuilt voice-first UI over an ambient video backdrop. The product is now branded **Automata by HassanTech**. Release **v0.5.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## Rebrand to Automata + Monorepo Unification — v0.5.0 (2026-11-17)
+
+**Repository unified into one workspace:**
+- ✅ The legacy WhatsApp persona bot (`src/`, `scripts/`, `data/`, `ecosystem.config.cjs`, `.env.example`) was removed. It was a Baileys / WhatsApp-**Web** bot, unrelated to the app's WhatsApp **Desktop** UI-automation tool (`packages/core/src/os-control/automation/adapters/whatsapp-adapter.ts`). Its code is preserved in git history and in the `archive/whatsapp-persona-bot` and `pre-automata` tags.
+- ✅ `git mv` moved `companion/apps → apps`, `companion/packages → packages`, `companion/{tsconfig.json,eslint.config.mjs,vitest.config.ts,package.json,package-lock.json,.gitignore} →` the repository root, and `companion/README.md → docs/DEVELOPMENT.md`. `companion/` no longer exists.
+- ✅ `npm install` re-linked the workspaces at `""`, `apps/desktop`, `packages/core`; `npm run verify` passes from the new root.
+
+**Brand rename to Automata (by HassanTech):**
+- ✅ npm scope `@companion/* → @automata/*` across ~200 source files; the lockfile was regenerated (`grep '@companion/'` now returns nothing). The root `package.json` name is `automata`.
+- ✅ Packaging: `productName "Companion" → "Automata"`, `appId "com.kkc36.companion" → "com.hassantech.automata"`, `author "HassanTech"`, added `copyright`. Installer artifacts are now `Automata-<version>-x64.exe`.
+- ✅ User-facing strings: `app.setName`, the window `title`, the tray tooltip, the macOS/Windows "Message from …" email subject, the renderer `<title>`, the onboarding `<h1>`, the rail brand mark (`C` → `A`), the assistant message label, the mic/background error copy, the custom-provider copy, the persona default name, and the Settings → Email notice.
+- ✅ Credential store service name `"Companion" → "Automata"` (both the desktop adapter and the `KeytarCredentialStore` default). Existing installs that already saved a key under the old service name will need to re-enter it; acceptable for a rename before the first public Automata release.
+- ✅ Voice helper: `CompanionVoice.cs → AutomataVoice.cs`, `resources/voice/CompanionVoice.exe → AutomataVoice.exe`, and the class name / `build-voice.mjs` / `main/index.ts` lookups updated together.
+- ✅ Provider catalogue guide copy ("Paste the key into Companion") → "into Automata".
+- ✅ CI retargeted: `.github/workflows/companion-ci.yml → ci.yml`, `name: Automata CI`, `working-directory: companion` removed, path filters removed, `cache-dependency-path: package-lock.json`.
+- Internal identifiers deliberately left unchanged (no user benefit, real churn risk): the `window.companion` preload bridge, the `--companion-session-token` argument, the `CompanionDatabase` / `openCompanionDatabase` TS types, the `CompanionCam` / `CompanionVid` temp-file names, and test fixture strings.
+
+**Docs:**
+- ✅ Root `README.md` rewritten for Automata (title, icon path `apps/desktop/resources/icon.png`, demo section, install caveat, 60-second quickstart, clean repository layout, brand, `hassan200503/automata` links). `PERSONAL_README.md`, `docs/DEVELOPMENT.md` (rewritten for the root workspace) and `docs/SECURE_SETUP.md` rebranded.
+- Historical records under `docs/MILESTONES/`, `docs/audit/`, `docs/GAP_REGISTER.md` and `docs/P0_COMPLETION_REPORT.md` still name the pre-rename `companion/` path and are retained as timestamped history.
+
+**Test Results:** 67 files / 539 tests passing, 0 type errors, 0 lint errors, both builds succeed.
+
+**Caveats:** the Windows installer was not rebuilt in this pass (no Windows host); the `.ico`/`.exe` were renamed on disk but are only exercised on a Windows build. Data under the old `%APPDATA%/Companion` directory is not migrated — the app now uses `%APPDATA%/Automata`.
 
 ## Ambient Video Backdrop + Video-Derived Icon — v0.5.0 (2026-11-17)
 
@@ -19,7 +44,7 @@ Status: Full OS control (volume, brightness, media keys, lock, sleep, power, win
 - ✅ Removed the now-stale `resources/icon.svg` (the old vector logo) and its entry in the packaged `files` list.
 
 **Version + docs + release:**
-- ✅ Version bumped **0.4.0 → 0.5.0** across the three workspace manifests (including the `@companion/core` range) and the lockfile re-synced.
+- ✅ Version bumped **0.4.0 → 0.5.0** across the three workspace manifests (including the `@automata/core` range) and the lockfile re-synced.
 - ✅ Root `README.md`: version badge, a new v0.5.0 "What's New", corrected screenshot caption, refreshed screenshots (re-captured at 1440×940) and a v0.5.0 download link; `companion/README.md` release section → 0.5.0.
 - ✅ `packages/core/src/providers/mock-provider.test.ts`: relaxed the `simulates latency` floor (50 → 40 ms) — the old assertion flaked when `setTimeout(50)` fired a hair early under the 67-worker parallel suite.
 
@@ -45,7 +70,7 @@ Status: Full OS control (volume, brightness, media keys, lock, sleep, power, win
 **Licence + release metadata:**
 - ✅ Added `LICENSE` (MIT, © 2026 Hassan Tsuma) at the repository root.
 - ✅ `license` set to `MIT` in `companion/package.json`, `apps/desktop/package.json`, `packages/core/package.json` and the root `package.json` (was `UNLICENSED`); the `apps/desktop` author is now the owner.
-- ✅ Version bumped **0.3.0 → 0.4.0** across the three workspace manifests (including the `@companion/core` range) and the lockfile re-synced.
+- ✅ Version bumped **0.3.0 → 0.4.0** across the three workspace manifests (including the `@automata/core` range) and the lockfile re-synced.
 
 **Docs + screenshots:**
 - ✅ Root `README.md` rewritten around the new UI: app icon, MIT badge, a v0.4.0 "What's New" section, refreshed screenshots (now including `talk-hero.png`) and corrected project-size metrics.
@@ -82,10 +107,10 @@ Status: Full OS control (volume, brightness, media keys, lock, sleep, power, win
 - Build succeeds
 
 **Build fix:**
-- ✅ `apps/desktop/package.json` now depends on `@companion/core` `0.3.0`, so `npm install` resolves the workspace package locally.
+- ✅ `apps/desktop/package.json` now depends on `@automata/core` `0.3.0`, so `npm install` resolves the workspace package locally.
 
 **Release v0.3.0 + documentation (2026-11-17):**
-- ✅ Version bumped to **0.3.0** across `companion/package.json`, `apps/desktop/package.json`, `packages/core/package.json` (and the `@companion/core` range).
+- ✅ Version bumped to **0.3.0** across `companion/package.json`, `apps/desktop/package.json`, `packages/core/package.json` (and the `@automata/core` range).
 - ✅ Root `README.md` rewritten for an advanced-developer audience: real UI screenshots, accurate counts (539 tests / 67 files, 46 registered tools, ~26.5k source lines), combined-intelligence section, refreshed architecture and release notes.
 - ✅ Real screenshots captured from the running Electron app (Xvfb + Chrome DevTools Protocol) into `docs/screenshots/`: `main-interface.png`, `setup.png`, `settings-voice.png`, `settings-providers.png`.
 - ✅ `companion/README.md` release section updated to 0.3.0.

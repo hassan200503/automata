@@ -1,6 +1,6 @@
 # Secure Setup Guide
 
-This guide explains how to securely configure credentials for the Windows AI Companion. All credentials are stored using Windows Credential Manager or encrypted local storage - never in source code or plain text files.
+This guide explains how to securely configure credentials for Automata, the Windows-first personal AI companion by HassanTech. All credentials are stored using Windows Credential Manager or encrypted local storage - never in source code or plain text files.
 
 ## 🔒 Security Principles
 
@@ -18,11 +18,11 @@ This guide explains how to securely configure credentials for the Windows AI Com
 2. **Generate an App Password**:
    - Go to Google Account > Security > 2-Step Verification
    - Select "App passwords"
-   - Create a new app password for "Companion"
+   - Create a new app password for "Automata"
    - Copy the 16-character password
 
-3. **Configure in Companion**:
-   - Open Companion
+3. **Configure in Automata**:
+   - Open Automata
    - Go to Settings > Email
    - Enter:
      - Host: `imap.gmail.com`
@@ -36,7 +36,7 @@ This guide explains how to securely configure credentials for the Windows AI Com
 ### Security Notes
 
 - The app password is stored in Windows Credential Manager
-- Companion never invents inbox contents when disconnected
+- Automata never invents inbox contents when disconnected
 - TLS is required for secure IMAP connections
 - Gmail app passwords can be revoked from Google Account settings
 
@@ -51,12 +51,12 @@ This guide explains how to securely configure credentials for the Windows AI Com
 
 2. **Create a New App**:
    - Click "Create App"
-   - App name: "Companion AI"
+   - App name: "Automata"
    - Select "Sandbox" for testing
    - Note your Client ID and Client Secret
 
-3. **Configure in Companion**:
-   - Open Companion
+3. **Configure in Automata**:
+   - Open Automata
    - Go to Settings > Payments
    - Enter:
      - Client ID: From PayPal Developer Portal
@@ -71,7 +71,7 @@ This guide explains how to securely configure credentials for the Windows AI Com
 1. **Switch to Live Mode**:
    - In PayPal Developer Portal, create a live app
    - Copy the live Client ID and Client Secret
-   - In Companion Settings > Payments:
+   - In Automata Settings > Payments:
      - Change Mode to "Live"
      - Enter live credentials
      - Save and test
@@ -104,17 +104,17 @@ For advanced email features (read-aloud, importance analysis):
    - Application type: Desktop application
    - Download the credentials JSON
 
-4. **Configure in Companion**:
-   - Open Companion
+4. **Configure in Automata**:
+   - Open Automata
    - Go to Settings > Email
    - Follow the OAuth flow when prompted
-   - Grant permissions to Companion
+   - Grant permissions to Automata
 
 ### Security Notes
 
 - OAuth tokens are stored in Windows Credential Manager
 - Tokens are automatically refreshed when expired
-- Read-only scope ensures Companion cannot send emails
+- Read-only scope ensures Automata cannot send emails
 - You can revoke access from Google Account settings
 
 ## 📱 WhatsApp Integration
@@ -125,8 +125,8 @@ For advanced email features (read-aloud, importance analysis):
    - Go to https://web.whatsapp.com
    - Link your phone by scanning QR code
 
-2. **Grant Permissions in Companion**:
-   - Open Companion
+2. **Grant Permissions in Automata**:
+   - Open Automata
    - Go to Settings > Privacy
    - Grant "WhatsApp messaging" permission
    - Grant "WhatsApp calling" permission (optional)
@@ -134,13 +134,13 @@ For advanced email features (read-aloud, importance analysis):
 ### Security Notes
 
 - WhatsApp Web must be open on your PC
-- Companion uses UI Automation to interact with WhatsApp
+- Automata uses UI Automation to interact with WhatsApp
 - Phone must be connected to the internet
 - WhatsApp actions require confirmation for Class 3 risks
 
 ## 🔍 Credential Validation
 
-Companion validates all credentials before attempting connections:
+Automata validates all credentials before attempting connections:
 
 ### Email Validation
 - Hostname format check
@@ -181,7 +181,7 @@ Companion validates all credentials before attempting connections:
 
 ## 📋 Security Checklist
 
-Before using Companion in production:
+Before using Automata in production:
 
 - [ ] All credentials stored in Windows Credential Manager
 - [ ] No credentials in source code or config files
@@ -197,7 +197,7 @@ Before using Companion in production:
 To rotate credentials:
 
 1. **Generate new credentials** (app password, API keys, tokens)
-2. **Update in Companion Settings**
+2. **Update in Automata Settings**
 3. **Test connection**
 4. **Revoke old credentials** from provider settings
 5. **Verify old credentials no longer work**
@@ -205,11 +205,11 @@ To rotate credentials:
 ## 📞 Support
 
 For security issues or credential problems:
-- Check the logs in Companion Settings > Data
+- Check the logs in Automata Settings > Data
 - Review credential validation errors
 - Consult provider documentation
 - Revoke access immediately if compromise suspected
 
 ---
 
-**Remember**: Never share your credentials, and always use secure storage mechanisms. Companion is designed to handle credentials securely - let it do its job.
+**Remember**: Never share your credentials, and always use secure storage mechanisms. Automata is designed to handle credentials securely - let it do its job.

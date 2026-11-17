@@ -8,8 +8,8 @@ I build reliable business software where money and data have to stay correct: pa
 
 ## Featured Projects
 
-### 🤖 Companion AI
-A voice-first, intelligent Windows desktop companion with autonomous capabilities. Built with Electron, TypeScript, and advanced AI integration.
+### 🤖 Automata
+A voice-first, intelligent Windows desktop assistant with autonomous capabilities. Built with Electron, TypeScript, and advanced AI integration. (Automata by HassanTech, formerly Companion AI.)
 
 **Tech Stack:** Electron 45, React 19, TypeScript, Node.js, SQLCipher, Gemini AI, WinRT
 **Highlights:**
@@ -22,7 +22,7 @@ A voice-first, intelligent Windows desktop companion with autonomous capabilitie
 - 539 automated tests across 67 files, 0 type errors
 - MIT licensed, with a rebuilt voice-first interface and a proper app icon
 
-[Download →](https://github.com/hassan200503/personal-companion-bot/releases) · [Source →](https://github.com/hassan200503/personal-companion-bot)
+[Download →](https://github.com/hassan200503/automata/releases) · [Source →](https://github.com/hassan200503/automata)
 
 ---
 
@@ -79,7 +79,7 @@ A property and rental management SaaS built for the Kenyan market, with M-Pesa (
 
 ## What I'm Working On
 
-- **Companion AI**: Enhancing autonomous capabilities and voice interaction features
+- **Automata**: Enhancing autonomous capabilities and voice interaction features
 - **RentManager**: Polishing deployment story and preparing for commercial launch
 - Exploring: AI-powered business automation and intelligent assistants
 
