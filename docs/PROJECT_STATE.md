@@ -18,6 +18,12 @@ Status: Full OS control (volume, brightness, media keys, lock, sleep, power, win
 
 **Test Results:** 67 files / 539 tests passing, 0 type errors, 0 lint errors, build succeeds.
 
+## Publication — Automata v0.6.0 shipped (2026-11-17)
+
+- ✅ `main` pushed (`6e18b9b..4e3265d`) and tag `v0.6.0` pushed; **Automata CI** and **Release** both completed green on the Windows runner.
+- ✅ Release **v0.6.0** is published with `Automata-0.6.0-x64.exe` (124,655,946 B, the Windows-CI build) and `SHA256SUMS.txt`; the release body embeds the installer SHA-256 (`aa9a1b67…d4f559b`) and a `certutil -hashfile` instruction.
+- ✅ Screenshots and the demo GIF refreshed for the voice-on-by-default shell.
+
 ## Publication — Automata v0.5.0 shipped (2026-11-17)
 
 - ✅ The GitHub repository was renamed `personal-companion-bot → hassan200503/automata`, with a description, homepage, 12 topics and Discussions enabled.
@@ -508,7 +514,7 @@ npm run package
 - The voice helper and build script are Windows-only and require the Windows SDK `Windows.winmd` at build time; the packaged app ships the compiled helper and falls back if it is missing.
 - Injection corpus covers seven external origins and classes 1-3; fixture messenger, ranked media, proactive and learning-policy tests now run. Desktop chat no longer copies conversation content into learning by default, but producer wiring, kill tests and soak remain open.
 - NSIS packaging produced `apps/desktop/release/Companion-0.1.0-x64.exe` (2026-10-30 SHA-256 `32E04C31DFB2FD78CC7C02996BBE8174B0F2138DF1AA2A14CADE86675143B8E8`, V-83), and packaged runtime/supervisor external-termination smokes passed in V-65/V-69 plus the voice-helper smoke in V-77; the installer is unsigned, uses the default icon, and has not been installed on a clean machine; SmartScreen/uninstall/first-run remain unverified.
-- `main` is pushed to GitHub; CI still has not been confirmed green on the remote.
+- `main` is pushed to GitHub and CI is confirmed green on the remote for the v0.5.0 and v0.6.0 pushes (V-112, V-123).
 - Logger redaction does not cover secrets embedded in free-text messages or error strings.
 - Runtime memory and idle CPU were not measured.
 - Third-party MIT notices for bundled native packages are not in the package.
