@@ -58,8 +58,14 @@ jobs:
         shell: bash
         run: |
           cd apps/desktop/release
-          sha256sum Automata-*-x64.exe > SHA256SUMS.txt
-          cat SHA256SUMS.txt
+          sha256sum Automata-*-x64.exe | tee SHA256SUMS.txt
+
+      - name: Compose release notes
+        shell: bash
+        run: |
+          cd apps/desktop/release
+          printf '## Automata %s\n\nWindows-first, voice-first personal AI companion by HassanTech.\n\n### Download\n\n- `Automata-*-x64.exe` — Windows installer (64-bit)\n- `SHA256SUMS.txt` — checksum for the installer\n\n### Verify your download\n\nThe installer is not code-signed. Before running it, confirm its SHA-256 matches:\n\n```text\n%s\n```\n\nOn Windows, check it in the folder you downloaded it to:\n\n```text\ncertutil -hashfile Automata-*-x64.exe SHA256\n```\n\n> **Windows may show "Windows protected your PC".** Click **More info → Run anyway**, after the hash above matches.\n\nSee [`CHANGELOG.md`](https://github.com/hassan200503/automata/blob/main/CHANGELOG.md) for what changed.\n' "${{ steps.version.outputs.tag }}" "$(cat SHA256SUMS.txt)" > release-notes.md
+          cat release-notes.md
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -67,21 +73,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: Automata ${{ steps.version.outputs.tag }}
           generate_release_notes: true
+          body_path: apps/desktop/release/release-notes.md
           files: |
             apps/desktop/release/Automata-*-x64.exe
             apps/desktop/release/SHA256SUMS.txt
-          body: |
-            ## Automata ${{ steps.version.outputs.tag }}
-
-            Windows-first, voice-first personal AI companion by HassanTech.
-
-            ### Download
-
-            - `Automata-*-x64.exe` — Windows installer (64-bit)
-            - `SHA256SUMS.txt` — checksum for the installer
-
-            > **Windows may show "Windows protected your PC".** The installer is not code-signed,
-            > so SmartScreen warns on first run. Click **More info → Run anyway**, and verify the
-            > download against `SHA256SUMS.txt` before installing.
-
-            See [`CHANGELOG.md`](https://github.com/hassan200503/automata/blob/main/CHANGELOG.md) for what changed.
