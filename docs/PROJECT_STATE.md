@@ -39,6 +39,13 @@ Status: Full OS control (volume, brightness, media keys, lock, sleep, power, win
 - ✅ Real screenshots captured from the running Electron app (Xvfb + Chrome DevTools Protocol) into `docs/screenshots/`: `main-interface.png`, `setup.png`, `settings-voice.png`, `settings-providers.png`.
 - ✅ `companion/README.md` release section updated to 0.3.0.
 
+**Ship & demo pass (2026-11-17):**
+- ✅ Added root `LICENSE` (MIT, © 2026 HassanTech); switched `license` from `UNLICENSED` → `MIT` in all three manifests; README license badge and License section updated.
+- ✅ Generated a real app icon from the supplied animated GIF: `resources/icon.png` (1024²), `resources/icon.ico` (6 sizes), `resources/tray.png` (32²). Wired into `electron-builder` (`build.win.icon` + NSIS installer icons) with `publisherName: "HassanTech"`; `createTray()` and `createWindow()` in `src/main/index.ts` now use real icon assets (tray was a 1×1 transparent placeholder).
+- ✅ Added `.github/workflows/companion-release.yml` — Windows release pipeline (verify + package + `gh release create` on `v*` tags, artifact upload on manual runs).
+- ✅ Recorded a real demo (Electron under Xvfb + CDP screencast, 417 frames → 65-frame GIF) to `docs/screenshots/demo.gif` (520×346, 4.3 MB) and added a **Demo** section to the root README.
+- ⚠️ Installer packaging and the release workflow target Windows and were **not** executed in this Linux sandbox.
+
 
 ## Production Readiness Sprint - Full OS Control (2026-11-16)
 

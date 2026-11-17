@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "description": "Windows-first personal AI companion",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.5.0"

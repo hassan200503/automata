@@ -1,0 +1,61 @@
+name: Companion Release
+
+# Build a Windows installer and attach it to a GitHub release whenever a
+# version tag is pushed (e.g. `git tag v0.3.0 && git push origin v0.3.0`).
+# Can also be run manually from the Actions tab.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: companion
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: companion/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Verify (lint + typecheck + test + build)
+        run: npm run verify
+
+      - name: Build installer
+        run: npm run package
+
+      - name: Show artifact
+        run: ls apps/desktop/release
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            apps/desktop/release/*.exe \
+            --title "Companion ${GITHUB_REF_NAME}" \
+            --generate-notes
+
+      - name: Upload artifact (manual runs)
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-installer
+          path: companion/apps/desktop/release/*.exe

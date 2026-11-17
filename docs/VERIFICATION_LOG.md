@@ -544,4 +544,16 @@ Schema/metadata only — the PowerShell `shutdown.exe` and `SetWindowPos` paths 
 
 The screenshots were captured from the running app in a Linux sandbox. Two caveats are recorded honestly: (1) the OS-specific "Windows Credential Manager could not be read" error banner was suppressed in the captures because the Windows credential store is unavailable on the Linux test host; and (2) Windows-only behaviour (OS actions, credential store, packaged installer) remains unexercised here.
 
+## 38. Ship & demo pass: license, icon, publisher, release CI, demo GIF (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-91 | `npm run verify` from `companion/` after the license/icon/manifest edits | PASS: ESLint 0 errors, TypeScript clean, 67 test files / 539 tests passed, Electron main/preload/supervisor and Vite renderer builds completed. |
+| V-92 | New `/workspace/LICENSE` and manifest `license` fields | MIT License added at repo root (`Copyright (c) 2026 HassanTech`); `license` changed from `UNLICENSED` → `MIT` in `companion/package.json`, `companion/apps/desktop/package.json` and `companion/packages/core/package.json`. README license badge and License section updated to match. |
+| V-93 | Real app icon generated from the supplied animated GIF (ImageMagick `convert`, 120 coalesced frames at 1080×1080) and wired into the desktop shell | `resources/icon.png` (1024×1024 RGBA, replaces the previous SVG masquerading as a PNG), `resources/icon.ico` (6 sizes: 256/128/64/48/32/16) and `resources/tray.png` (32×32). `apps/desktop/package.json` `build.win.icon` → `resources/icon.ico` with a new `publisherName: "HassanTech"`; NSIS `installerIcon`/`uninstallerIcon`/`installerHeaderIcon` set; `files` now ships the icon assets. In `src/main/index.ts`, `createTray()` now creates the tray from a real 32×32 PNG data URL (was a 1×1 transparent placeholder) and `createWindow()` sets `icon: resources/icon.png`. |
+| V-94 | New `.github/workflows/companion-release.yml` | Windows release pipeline: on `v*` tags or manual dispatch it runs `npm ci` + `npm run verify` + `npm run package`, then `gh release create "${GITHUB_REF_NAME}" …/*.exe --generate-notes` (tag builds) or uploads the installer as a workflow artifact (manual runs). |
+| V-95 | Demo capture: Electron under `Xvfb :99` + CDP `Page.startScreencast` (417 JPEG frames), assembled with ffmpeg into `docs/screenshots/demo.gif` | GIF is 520×346, 65 frames (~13 s, 5 fps, 32-colour palette, bayer dither) at 4.3 MB. README gained a **Demo** section embedding it. |
+
+Honest caveats: the packaged installer (V-93/V-94) was **not** built or run in this Linux sandbox — `npm run package` and the release workflow target Windows and remain unexercised here. The demo GIF shows the Linux-host app with the Windows-credential error banner suppressed (as with V-89) and was captured before the icon changes took effect in the renderer. The MIT license and HassanTech publisher are metadata changes only and were not legally reviewed.
+
 

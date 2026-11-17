@@ -8,6 +8,7 @@ Latest verification: 2026-11-17 — `npm run verify` from `companion/` passed 0 
 - **Ensemble router** (`packages/core/src/providers/ensemble.ts`): fans a request out to every connected provider in parallel and returns the strongest answer (best-of default; majority/fastest options). Wired into the desktop main process behind a persisted toggle (Settings → Providers). This adds a "combine the models" answer path; individual providers still handle streaming and failover. Not a tracked gap below.
 - **Premium UI refresh** (renderer `styles.css`): near-black token palette, refined surfaces, focus states and on-brand scrollbars. Presentation only.
 - **OS operation gaps closed** (previously absent from the tool set): `os.power` (shutdown/restart/hibernate, Class 3 + confirmation), `os.moveWindow`, `os.resizeWindow`, plus NL patterns. PowerPoint/document generation and UIPI integrity probing remain open (see GAP-04 and the fix order).
+- **Ship & demo pass**: added an MIT `LICENSE` (© 2026 HassanTech), a real app icon (PNG/ICO/tray), the HassanTech publisher, and a Windows release workflow. Packaging and the workflow were not executed in the Linux sandbox (see GAP-27).
 - No gap below changes status from this work.
 
 
@@ -71,6 +72,7 @@ The following capabilities were added, closing several gaps around OS automation
 | GAP-22 | CI has not run on GitHub | `main` pushed (`9516104`+); remote CI status not yet confirmed. | Owner/CI | OPEN |
 | GAP-23 | No third-party notices in packaged app | PROJECT_STATE known defects. | Release work | OPEN |
 | GAP-26 | New power/window-geometry OS tools unverified on Windows | `os.power`, `os.moveWindow`, `os.resizeWindow` have schema tests but were not run on a real Windows host; real shutdown and `SetWindowPos` effects are unobserved. | Windows host | OPEN |
+| GAP-27 | Windows release workflow and installer packaging unexercised | Added `.github/workflows/companion-release.yml` (verify + `npm run package` + `gh release create`) and switched `build.win.icon`/NSIS icons to the generated `resources/icon.ico`, but neither the workflow nor `electron-builder` ran in this Linux sandbox, so the packaged installer and published release are unverified. | Windows host / CI | OPEN |
 
 ## Fix order
 

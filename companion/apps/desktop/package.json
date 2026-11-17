@@ -3,8 +3,8 @@
   "version": "0.3.0",
   "private": true,
   "description": "Windows desktop shell for the companion",
-  "author": "Owner",
-  "license": "UNLICENSED",
+  "author": "HassanTech",
+  "license": "MIT",
   "main": "dist/main/index.js",
   "scripts": {
     "build": "npm run build:voice && node esbuild.mjs && vite build",
@@ -51,6 +51,9 @@
     "files": [
       "dist/**/*",
       "package.json",
+      "resources/icon.ico",
+      "resources/icon.png",
+      "resources/tray.png",
       "resources/icon.svg",
       "node_modules/**/*",
       "!node_modules/.bin/**",
@@ -75,14 +78,18 @@
         }
       ],
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "icon": "resources/icon.svg"
+      "icon": "resources/icon.ico",
+      "publisherName": "HassanTech"
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico",
+      "installerHeaderIcon": "resources/icon.ico"
     }
   }
 }

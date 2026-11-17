@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
-![License](https://img.shields.io/badge/license-UNLICENSED-red.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D22.5.0-green.svg)
 ![Electron](https://img.shields.io/badge/electron-45-9BE349.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-6.0-blue.svg)
@@ -30,6 +30,14 @@ Captured from the running Electron app.
 | Settings → Voice | Settings → Providers — combined intelligence |
 | :---: | :---: |
 | ![Voice settings](docs/screenshots/settings-voice.png) | ![Providers / ensemble](docs/screenshots/settings-providers.png) |
+
+---
+
+## Demo
+
+A quick tour of the running app — the voice-first Talk stage, provider onboarding, and the Settings shell (Voice, Providers with combined intelligence, Memory, Persona).
+
+![Companion demo — voice-first talk, onboarding and settings tour](docs/screenshots/demo.gif)
 
 ---
 
@@ -303,8 +311,10 @@ personal-companion-bot/
 │   ├── apps/desktop/          # Electron shell (main · preload · renderer)
 │   └── packages/core/         # Framework-neutral TypeScript core
 ├── docs/                      # Spec, state, security and verification docs
-│   └── screenshots/           # UI screenshots used by this README
+│   └── screenshots/           # UI screenshots and demo GIF used by this README
+├── .github/workflows/         # Companion CI + Windows release pipeline
 ├── src/ · scripts/ · data/    # Legacy WhatsApp persona bot (separate, unmaintained)
+├── LICENSE                    # MIT License (© 2026 HassanTech)
 └── README.md
 ```
 
@@ -371,7 +381,7 @@ Commits follow conventional-commit prefixes. Never push to `main` directly.
 
 ## License
 
-This project is **UNLICENSED** — all rights reserved.
+Released under the [MIT License](LICENSE). © 2026 HassanTech.
 
 ---
 
@@ -379,7 +389,7 @@ This project is **UNLICENSED** — all rights reserved.
 
 **Companion** is a Windows-first, voice-first automation assistant built on Electron, React and a framework-neutral TypeScript core. It is designed around two principles: **do real work on the PC**, and **be honest about it** — it only reports an action as done when the result was observed.
 
-Maintained by **Hassan**.
+Published by **HassanTech**.
 
 - **GitHub** — [@hassan200503](https://github.com/hassan200503)
 - **LinkedIn** — [hassan-karungwa](https://www.linkedin.com/in/hassan-karungwa)
