@@ -3,7 +3,29 @@
 Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a rebuilt voice-first UI. Release **v0.4.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a rebuilt voice-first UI over an ambient video backdrop. Release **v0.5.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## Ambient Video Backdrop + Video-Derived Icon — v0.5.0 (2026-11-17)
+
+**Ambient video backdrop:**
+- ✅ Added `apps/desktop/src/renderer/assets/background.mp4` (H.264 High@4.1, yuv420p, 960×720, 30 fps, 5 s, no audio — 681,751 B) and `background.jpg` (poster frame at t=2.5 s, 56,604 B). Both are imported by the renderer, so Vite emits and hashes them automatically.
+- ✅ `App.tsx` shell now starts with an `.app-bg` layer: a muted, looping, `playsInline` `<video>` plus an `.app-bg-scrim`; `styles.css` places it at `z-index: -1` inside an `isolation: isolate` `.app`, uses `object-fit: cover`, and sets the still frame as the layer's CSS `background` (first-paint placeholder) with a `@media (prefers-reduced-motion: reduce)` rule that hides the video.
+- ✅ Legibility pass: rail, top bar, panels, hero and composer moved to translucent glass (`backdrop-filter: blur()` + `--surface-glass: rgba(20,20,23,0.74)`), the scrim and `.stage` base were lightened. Verified through the CDP harness — backdrop ON vs layer removed is a 4.13/255 mean difference over 9.8 % of pixels.
+- ✅ `index.html` CSP: added the missing `media-src 'self'` directive (the bundled video was falling back to `default-src 'self'`). A real Electron run under `file://` reports `readyState=4`, the video playing, and zero CSP violations.
+
+**Application icon (video-derived):**
+- ✅ `resources/icon.png` replaced with a 512×512 frame cropped from the same video (centre 720×720 crop at t=2.5 s, lanczos, 304,261 B).
+- ✅ `resources/icon.ico` regenerated from that PNG — 7 sizes (16/24/32/48/64/128/256), 147,281 B — still wired to `win.icon`, `nsis.installerIcon` and `nsis.uninstallerIcon`.
+- ✅ Removed the now-stale `resources/icon.svg` (the old vector logo) and its entry in the packaged `files` list.
+
+**Version + docs + release:**
+- ✅ Version bumped **0.4.0 → 0.5.0** across the three workspace manifests (including the `@companion/core` range) and the lockfile re-synced.
+- ✅ Root `README.md`: version badge, a new v0.5.0 "What's New", corrected screenshot caption, refreshed screenshots (re-captured at 1440×940) and a v0.5.0 download link; `companion/README.md` release section → 0.5.0.
+- ✅ `packages/core/src/providers/mock-provider.test.ts`: relaxed the `simulates latency` floor (50 → 40 ms) — the old assertion flaked when `setTimeout(50)` fired a hair early under the 67-worker parallel suite.
+
+**Test Results:** 67 files / 539 tests passing, 0 type errors, 0 lint errors, both builds succeed.
+
+**Caveats:** screenshots are captured from a stubbed-preload harness (the real main process needs Windows native modules); the backdrop is a renderer asset only — no main-process change was needed.
 
 ## UI Rebuild + Icon + MIT Licence — v0.4.0 (2026-11-17)
 

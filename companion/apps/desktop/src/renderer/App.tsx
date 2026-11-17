@@ -23,6 +23,7 @@ import { OnboardingHero } from './components/OnboardingHero';
 import { SettingsShell, type EmailForm, type PayPalForm } from './components/SettingsShell';
 import { VoiceDock } from './components/VoiceDock';
 import type { ProposedMemory } from './components/MemoryInbox';
+import backgroundLoop from './assets/background.mp4';
 
 type Provider = {
   id: string;
@@ -1324,6 +1325,20 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="app-bg" aria-hidden="true">
+        <video
+          className="app-bg-video"
+          src={backgroundLoop}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          tabIndex={-1}
+        />
+        <div className="app-bg-scrim" />
+      </div>
       <aside className={`rail ${navOpen ? 'open' : ''}`} aria-label="Primary">
         <div className="rail-brand">
           <span className="rail-mark">C</span>

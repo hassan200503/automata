@@ -1,6 +1,6 @@
 {
   "name": "@companion/desktop",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "Windows desktop shell for the companion",
   "author": "Hassan Tsuma",
@@ -17,7 +17,7 @@
     "better-sqlite3-multiple-ciphers": "13.0.3"
   },
   "devDependencies": {
-    "@companion/core": "0.4.0",
+    "@companion/core": "0.5.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
@@ -53,7 +53,6 @@
       "package.json",
       "resources/icon.ico",
       "resources/icon.png",
-      "resources/icon.svg",
       "node_modules/**/*",
       "!node_modules/.bin/**",
       "!node_modules/node-addon-api/**",

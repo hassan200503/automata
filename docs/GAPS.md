@@ -1,7 +1,13 @@
 # Gap List (v3 brief)
 
 Baseline: 2026-10-29. Graded against `docs/REQUIREMENTS.md`.
-Latest verification: 2026-11-17 (v0.4.0) — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the rebuilt UI, the application icon, the MIT licence and the combined multi-model answer path.
+Latest verification: 2026-11-17 (v0.5.0) — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the ambient video backdrop, the video-derived icon, the rebuilt UI, the MIT licence and the combined multi-model answer path.
+
+## 2026-11-17 Update — Ambient video backdrop + video-derived icon (v0.5.0)
+
+- **Ambient video backdrop**: the renderer shell now renders a muted, looping ambient video behind the rail and stage, with a still-frame poster as the first-paint placeholder and a `prefers-reduced-motion` fallback. The rail/top bar/panels/hero/composer moved to translucent glass so the loop reads through without hurting text contrast. The renderer CSP gained the `media-src 'self'` directive the bundled video requires. Presentation only — no tool, policy, provider or storage behaviour changed.
+- **Application icon is now video-derived**: `resources/icon.png` (512×512) and `resources/icon.ico` (16–256 px) are a frame cropped from the backdrop video and are wired into the NSIS installer, the uninstaller and the app window; the stale `resources/icon.svg` and its `files` entry were removed. Packaging-time icon rendering is still unverified — no Windows build ran in this pass.
+- No gap below changes status from this work.
 
 ## 2026-11-17 Update — Rebuilt UI, application icon, MIT licence (v0.4.0)
 

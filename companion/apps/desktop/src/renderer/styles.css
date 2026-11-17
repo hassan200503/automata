@@ -6,6 +6,7 @@
   --bg: #09090b;
   --bg-soft: #0d0d10;
   --surface: #141417;
+  --surface-glass: rgba(20, 20, 23, 0.74);
   --surface-2: #1a1a1e;
   --surface-3: #232329;
   --line: rgba(255, 255, 255, 0.075);
@@ -52,6 +53,43 @@ body {
   grid-template-rows: minmax(0, 1fr);
   height: 100vh;
   overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+/* ------------------------------------------------------------- backdrop */
+
+/* Ambient looping video behind the whole shell. It sits at z-index -1 so the
+   rail and stage paint over it; both are translucent so the loop reads
+   through. The still frame is the CSS background, which also acts as the
+   reduced-motion fallback and the first-paint placeholder. */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg) url('./assets/background.jpg') center / cover no-repeat;
+}
+
+.app-bg-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.app-bg-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1200px 760px at 60% 18%, rgba(9, 9, 11, 0.08), rgba(9, 9, 11, 0.45) 78%),
+    linear-gradient(180deg, rgba(9, 9, 11, 0.46) 0%, rgba(9, 9, 11, 0.18) 45%, rgba(9, 9, 11, 0.62) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-bg-video { display: none; }
 }
 
 .rail {
@@ -59,7 +97,8 @@ body {
   flex-direction: column;
   gap: 10px;
   padding: 16px 12px;
-  background: var(--bg-soft);
+  background: rgba(13, 13, 16, 0.74);
+  backdrop-filter: blur(22px) saturate(115%);
   border-right: 1px solid var(--line);
   overflow-y: auto;
 }
@@ -204,7 +243,7 @@ body {
   background:
     radial-gradient(900px 520px at 78% -12%, rgba(143, 182, 255, 0.06), transparent 60%),
     radial-gradient(760px 520px at 12% 108%, rgba(74, 222, 155, 0.05), transparent 62%),
-    var(--bg);
+    rgba(9, 9, 11, 0.28);
 }
 
 .topbar {
@@ -318,7 +357,8 @@ input[type='checkbox'] { width: 15px; height: 15px; accent-color: var(--live); }
 .checkbox-row input { width: auto; }
 
 .panel {
-  background: var(--surface);
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   padding: 20px;
@@ -451,7 +491,8 @@ input[type='checkbox'] { width: 15px; height: 15px; accent-color: var(--live); }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: var(--surface);
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--line-2);
   border-radius: var(--r-xl);
   padding: 12px 12px 9px;
@@ -533,7 +574,8 @@ input[type='checkbox'] { width: 15px; height: 15px; accent-color: var(--live); }
   background:
     linear-gradient(150deg, rgba(143, 182, 255, 0.08), transparent 46%),
     linear-gradient(200deg, rgba(74, 222, 155, 0.07), transparent 52%),
-    var(--surface);
+    var(--surface-glass);
+  backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   gap: 10px;

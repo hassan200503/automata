@@ -9,6 +9,8 @@ Note (2026-11-17): the combined multi-model answer path, the renderer UI refresh
 
 Note (2026-11-17, v0.4.0): the renderer was rebuilt into the voice-first shell (rail · top bar · stage), the application icon became a real PNG + multi-size ICO, and the licence changed from `UNLICENSED` to MIT. None of these change an SC row; the licence change does resolve the open licensing dependency noted for a possible no-cost signing route (see `docs/DECISIONS/ADR-0001-stack.md`).
 
+Note (2026-11-17, v0.5.0): the shell gained an ambient looping video backdrop (with a poster still and a `prefers-reduced-motion` fallback), the surrounding surfaces became translucent glass, and the app icon is now a frame cropped from that video. The renderer CSP added the `media-src 'self'` directive. This is presentation only — no SC row changes; the app icon now derives from the backdrop rather than a vector source.
+
 ## Success criteria
 
 | ID | Acceptance check | Status | Evidence |

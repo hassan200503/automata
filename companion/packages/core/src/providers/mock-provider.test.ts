@@ -249,7 +249,9 @@ describe('MockProvider', () => {
     await provider.complete(request, new AbortController().signal);
     const duration = Date.now() - start;
 
-    expect(duration).toBeGreaterThanOrEqual(50);
+    // setTimeout(50) can fire a hair early under load (timer coalescing) and
+    // Date.now() truncates, so allow a small margin instead of an exact floor.
+    expect(duration).toBeGreaterThanOrEqual(40);
   });
 
   it('estimates token usage', async () => {

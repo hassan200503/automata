@@ -4,7 +4,7 @@
 
 <img src="companion/apps/desktop/resources/icon.png" alt="Companion app icon" width="88" height="88" />
 
-![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D22.5.0-green.svg)
 ![Electron](https://img.shields.io/badge/electron-45-9BE349.svg)
@@ -23,7 +23,7 @@
 
 ## Screenshots
 
-Captured from the running Electron app (Electron 45 renderer, 1440×940 at 2× device scale).
+Captured from the running Electron app (Electron 45 renderer, 1440×940).
 
 | Talk — a live conversation | Talk — empty state with one-tap suggestions |
 | :---: | :---: |
@@ -45,11 +45,18 @@ Companion is a production-oriented Windows desktop application that turns natura
 
 The companion does not just execute commands. It reasons over a layered cognition pipeline, remembers what it learns, and is deliberately honest: it only claims an OS action succeeded when the action was actually observed. Every tool call passes through a policy engine with risk classes, rate limits, confirmation flows, an audit trail, and a global emergency stop.
 
-### What's New in v0.4.0
+### What's New in v0.5.0
+
+- **Ambient video backdrop.** The whole shell now sits over a looping, muted ambient video (`<video>` with `autoPlay`, `loop`, `playsInline`) rendered behind the rail and stage. It ships with a still-frame **poster** as the first-paint placeholder and the **`prefers-reduced-motion`** fallback, so nothing flashes and nothing moves for users who asked it not to.
+- **Glass surfaces, same legibility.** The rail, top bar, panels, hero and composer were moved to translucent glass (`backdrop-filter: blur()`) so the loop reads through the UI while text keeps its contrast. The renderer CSP gained the `media-src 'self'` directive the bundled video needs.
+- **App icon taken from the backdrop.** The 512 px PNG and the multi-size Windows `.ico` (16–256 px) are a centred frame cropped from that same video, wired into the NSIS installer, the uninstaller and the app window — the app now looks like what it looks like.
+- **Refreshed screenshots** for every view, captured from the running app with the backdrop live.
+
+### Previously in v0.4.0
 
 - **Rebuilt interface — a voice-first, Grok-style shell.** The renderer was rebuilt around a persistent left **rail** (Talk · Setup · Settings, a **New chat** action, conversation history with per-item delete, and live runtime / connected / honesty cards), a slim contextual **top bar** with status pills, and a centred stage. **Talk** opens on an empty-state hero — an animated orb and five one-tap suggestion chips — above message bubbles and a **sticky composer** (Enter to send, Shift+Enter for a new line, with live mic and send buttons). **Setup** is a voice-guided hero plus panels; **Settings** is a section rail (Voice · Persona · Privacy · Email · Payments · Providers · Memory · Data) over the matching panels.
 - **A disciplined design system.** Near-black canvas (`#09090b`), layered surfaces, hairline borders, a single white/silver accent with mint "live" and amber "warm" states, Inter with stylistic alternates, and shared radius and shadow tokens. The rail collapses to an overlay menu at ≤960 px.
-- **Proper application icon.** A multi-size Windows `.ico` (16–256 px) and a 512 px PNG rasterised from the vector source, wired into the NSIS installer, the uninstaller and the app window.
+- **Proper application icon.** A multi-size Windows `.ico` (16–256 px) and a 512 px PNG, wired into the NSIS installer, the uninstaller and the app window.
 - **MIT licensed.** The project now ships an explicit [MIT LICENSE](LICENSE).
 
 ### Previously in v0.3.0

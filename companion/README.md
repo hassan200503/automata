@@ -81,7 +81,7 @@ To create a new release:
 4. Upload `apps/desktop/release/Companion-<version>-x64.exe` to GitHub Releases.
 5. Update the version and download badges in the root README.
 
-The current version is **0.4.0**, producing `Companion-0.4.0-x64.exe`.
+The current version is **0.5.0**, producing `Companion-0.5.0-x64.exe`.
 
 ---
 
