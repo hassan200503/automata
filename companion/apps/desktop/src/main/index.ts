@@ -1942,6 +1942,7 @@ async function createWindow(): Promise<void> {
     minHeight: 560,
     show: false,
     title: "Companion",
+    icon: join(app.getAppPath(), "resources", "icon.png"),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       additionalArguments: [`--companion-session-token=${sessionToken}`],

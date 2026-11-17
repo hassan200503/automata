@@ -2,8 +2,10 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
-![License](https://img.shields.io/badge/license-UNLICENSED-red.svg)
+<img src="companion/apps/desktop/resources/icon.png" alt="Companion app icon" width="88" height="88" />
+
+![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D22.5.0-green.svg)
 ![Electron](https://img.shields.io/badge/electron-45-9BE349.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-6.0-blue.svg)
@@ -21,15 +23,19 @@
 
 ## Screenshots
 
-Captured from the running Electron app.
+Captured from the running Electron app (Electron 45 renderer, 1440×940 at 2× device scale).
 
-| Talk — voice-first chat stage | Guided setup — provider onboarding |
+| Talk — a live conversation | Talk — empty state with one-tap suggestions |
 | :---: | :---: |
-| ![Talk view](docs/screenshots/main-interface.png) | ![Setup view](docs/screenshots/setup.png) |
+| ![Talk view](docs/screenshots/main-interface.png) | ![Talk hero](docs/screenshots/talk-hero.png) |
 
-| Settings → Voice | Settings → Providers — combined intelligence |
+| Guided setup — voice onboarding | Settings → Providers — combined intelligence |
 | :---: | :---: |
-| ![Voice settings](docs/screenshots/settings-voice.png) | ![Providers / ensemble](docs/screenshots/settings-providers.png) |
+| ![Setup view](docs/screenshots/setup.png) | ![Providers / ensemble](docs/screenshots/settings-providers.png) |
+
+| Settings → Voice | |
+| :---: | :---: |
+| ![Voice settings](docs/screenshots/settings-voice.png) | |
 
 ---
 
@@ -39,12 +45,18 @@ Companion is a production-oriented Windows desktop application that turns natura
 
 The companion does not just execute commands. It reasons over a layered cognition pipeline, remembers what it learns, and is deliberately honest: it only claims an OS action succeeded when the action was actually observed. Every tool call passes through a policy engine with risk classes, rate limits, confirmation flows, an audit trail, and a global emergency stop.
 
-### What's New in v0.3.0
+### What's New in v0.4.0
 
-- **Combined intelligence (multi-model ensemble)** — a new `EnsembleProvider` queries every connected model in parallel and returns the single strongest answer using a deterministic `best-of` / `majority` / `fastest` selector, with an auditable per-run log. Enable it with one toggle in **Settings → Providers**.
-- **Premium dark UI** — refreshed token-based design system (near-black surface, champagne-gold and aurora-mint accents), reworked chat stage, voice dock, inputs, and settings shell.
-- **Expanded OS control** — new power actions (`os.power`: shutdown / restart / hibernate with optional delay) and window geometry (`os.moveWindow`, `os.resizeWindow`) bring the OS tool set to **37 tools**, plus natural-language patterns for each.
-- **Refreshed documentation and screenshots** — this README, updated release metadata, and real UI captures.
+- **Rebuilt interface — a voice-first, Grok-style shell.** The renderer was rebuilt around a persistent left **rail** (Talk · Setup · Settings, a **New chat** action, conversation history with per-item delete, and live runtime / connected / honesty cards), a slim contextual **top bar** with status pills, and a centred stage. **Talk** opens on an empty-state hero — an animated orb and five one-tap suggestion chips — above message bubbles and a **sticky composer** (Enter to send, Shift+Enter for a new line, with live mic and send buttons). **Setup** is a voice-guided hero plus panels; **Settings** is a section rail (Voice · Persona · Privacy · Email · Payments · Providers · Memory · Data) over the matching panels.
+- **A disciplined design system.** Near-black canvas (`#09090b`), layered surfaces, hairline borders, a single white/silver accent with mint "live" and amber "warm" states, Inter with stylistic alternates, and shared radius and shadow tokens. The rail collapses to an overlay menu at ≤960 px.
+- **Proper application icon.** A multi-size Windows `.ico` (16–256 px) and a 512 px PNG rasterised from the vector source, wired into the NSIS installer, the uninstaller and the app window.
+- **MIT licensed.** The project now ships an explicit [MIT LICENSE](LICENSE).
+
+### Previously in v0.3.0
+
+- **Combined intelligence (multi-model ensemble)** — an `EnsembleProvider` queries every connected model in parallel and returns the single strongest answer using a deterministic `best-of` / `majority` / `fastest` selector, with an auditable per-run log. Enable it with one toggle in **Settings → Providers**.
+- **Expanded OS control** — power actions (`os.power`: shutdown / restart / hibernate with optional delay) and window geometry (`os.moveWindow`, `os.resizeWindow`) brought the OS tool set to **37 tools**, plus natural-language patterns for each.
+- **Refreshed documentation and screenshots** — this README, updated release metadata and real UI captures.
 
 ### Previously in v0.2.0
 
@@ -158,7 +170,7 @@ The provider layer is a priority router with circuit breakers, quota tracking, r
 
 | Layer | Technology |
 | --- | --- |
-| **Frontend** | React 19.3, Vite 8.3, TypeScript 6.0, Inter font, glass-morphism design tokens |
+| **Frontend** | React 19.3, Vite 8.3, TypeScript 6.0, Inter, a near-black token design system |
 | **Desktop** | Electron 45, Node.js ≥ 22.5, esbuild, electron-builder (NSIS) |
 | **Core** | TypeScript 6.0 (strict), SQLCipher, Zod, Vitest 5 |
 | **AI** | Multi-provider router with circuit breakers, quotas, failover and ensemble |
@@ -169,7 +181,7 @@ The provider layer is a priority router with circuit breakers, quota tracking, r
 
 | Metric | Value |
 | --- | --- |
-| Source | ~26,500 lines across 153 TypeScript/TSX files |
+| Source | ~26,600 lines across 154 TypeScript/TSX source files (221 including tests) |
 | Tests | ~7,700 lines across 67 files |
 | Tools | 46 built-in tool definitions |
 | Providers | 8 cloud providers + custom OpenAI-compatible + ensemble |
@@ -371,7 +383,9 @@ Commits follow conventional-commit prefixes. Never push to `main` directly.
 
 ## License
 
-This project is **UNLICENSED** — all rights reserved.
+Released under the [MIT License](LICENSE).
+
+Copyright (c) 2026 Hassan Tsuma.
 
 ---
 

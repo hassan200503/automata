@@ -20,6 +20,7 @@ A voice-first, intelligent Windows desktop companion with autonomous capabilitie
 - Learning engine that adapts to user behavior patterns
 - Enterprise security with encrypted storage and credential management
 - 539 automated tests across 67 files, 0 type errors
+- MIT licensed, with a rebuilt voice-first interface and a proper app icon
 
 [Download →](https://github.com/hassan200503/personal-companion-bot/releases) · [Source →](https://github.com/hassan200503/personal-companion-bot)
 

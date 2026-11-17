@@ -1,7 +1,14 @@
 # Gap List (v3 brief)
 
 Baseline: 2026-10-29. Graded against `docs/REQUIREMENTS.md`.
-Latest verification: 2026-11-17 — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the combined multi-model answer path, premium UI refresh and added OS operations.
+Latest verification: 2026-11-17 (v0.4.0) — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the rebuilt UI, the application icon, the MIT licence and the combined multi-model answer path.
+
+## 2026-11-17 Update — Rebuilt UI, application icon, MIT licence (v0.4.0)
+
+- **Renderer rebuilt** into a voice-first shell (`App.tsx`, `styles.css` and the `ChatStage` / `VoiceDock` / `OnboardingHero` / `AlertsRail` / `ConfirmModal` / `SettingsShell` components): a persistent left rail, a contextual top bar, an empty-state hero with suggestion chips, a sticky composer and a settings section rail. Presentation and navigation only — no tool, policy, provider or storage behaviour changed.
+- **Application icon fixed**: `resources/icon.png` was an SVG file carrying a `.png` extension and the installer shipped no `.ico` at all (it pointed `win.icon` at the SVG). Both are now real raster assets (512×512 PNG + a 16–256 px ICO) and wired into electron-builder and the app window. Packaging-time icon rendering is still unverified — no Windows build ran in this pass.
+- **Licence decision made**: the repository now ships an explicit `LICENSE` (MIT) and declares `license: "MIT"` instead of `UNLICENSED`. This resolves the open "deliberate open-source licensing decision" dependency recorded in `docs/DECISIONS/ADR-0001-stack.md` and `docs/REQUIREMENTS_MATRIX.md` (DIST-07) for a possible no-cost signing route; pursuing that route remains owner action and is still unverified.
+- No gap below changes status from this work.
 
 ## 2026-11-17 Update — Combined intelligence + premium UI + OS gaps
 

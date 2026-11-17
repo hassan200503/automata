@@ -118,6 +118,8 @@ This changes the provisional "Windows 10/11" wording in the master prompt and re
 
 For v1, ship an unsigned classic installer, SHA256 checksums and a README that explains the expected SmartScreen warning and how to verify the hash. Do not ship MSIX. The repository is private and `UNLICENSED`, so it does not qualify for SignPath Foundation without an explicit open-source decision. Paid OV/EV certificates and Azure Artifact Signing are G4 and, for an individual in Kenya, Azure Artifact Signing public trust is unavailable. Revisit at M10.
 
+> **Update 2026-11-17 (v0.4.0):** the open-source condition is now met — the repository ships an MIT `LICENSE` and declares `license: "MIT"` — so the SignPath Foundation route is no longer blocked by licensing. It stays owner action and remains unverified; the v1 recommendation above (unsigned NSIS plus published SHA-256) is unchanged.
+
 ## G1 decision
 
 The owner approved all four questions on 2026-10-25:

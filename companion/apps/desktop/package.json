@@ -1,10 +1,10 @@
 {
   "name": "@companion/desktop",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Windows desktop shell for the companion",
-  "author": "Owner",
-  "license": "UNLICENSED",
+  "author": "Hassan Tsuma",
+  "license": "MIT",
   "main": "dist/main/index.js",
   "scripts": {
     "build": "npm run build:voice && node esbuild.mjs && vite build",
@@ -17,7 +17,7 @@
     "better-sqlite3-multiple-ciphers": "13.0.3"
   },
   "devDependencies": {
-    "@companion/core": "0.3.0",
+    "@companion/core": "0.4.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
@@ -51,6 +51,8 @@
     "files": [
       "dist/**/*",
       "package.json",
+      "resources/icon.ico",
+      "resources/icon.png",
       "resources/icon.svg",
       "node_modules/**/*",
       "!node_modules/.bin/**",
@@ -75,14 +77,16 @@
         }
       ],
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "icon": "resources/icon.svg"
+      "icon": "resources/icon.ico"
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico"
     }
   }
 }
