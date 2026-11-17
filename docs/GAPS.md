@@ -61,6 +61,7 @@ The following capabilities were added, closing several gaps around OS automation
 | GAP-18 | Clipboard may not be restored after paste | O7: no paste path exists, so not yet testable. | UIA | OPEN |
 | GAP-19 | No kill tests or soak | SC12 partial. | After feature work. | OPEN |
 | GAP-20 | Six ESLint warnings for unused disable directives | Removed; `npm run verify` now reports 0 warnings. | None. | FIXED |
+| GAP-25 | Combined-intelligence ensemble not exercised against live providers | `EnsembleProvider` has 17 unit tests and is wired through IPC + Settings, but no multi-provider live run is recorded. | Live provider keys | OPEN |
 
 ## Low
 
@@ -69,6 +70,7 @@ The following capabilities were added, closing several gaps around OS automation
 | GAP-21 | Installer unsigned and not clean-machine tested | Rebuilt NSIS artifact `Companion-0.1.0-x64.exe` (122,837,891 bytes, SHA-256 `32E04C31...43B8E8`, V-83), prior unpacked runtime/helper smoke passed (V-77), but signing and clean-machine installation/uninstall/SmartScreen checks remain open. | Owner/VM/G4 | OPEN |
 | GAP-22 | CI has not run on GitHub | `main` pushed (`9516104`+); remote CI status not yet confirmed. | Owner/CI | OPEN |
 | GAP-23 | No third-party notices in packaged app | PROJECT_STATE known defects. | Release work | OPEN |
+| GAP-26 | New power/window-geometry OS tools unverified on Windows | `os.power`, `os.moveWindow`, `os.resizeWindow` have schema tests but were not run on a real Windows host; real shutdown and `SetWindowPos` effects are unobserved. | Windows host | OPEN |
 
 ## Fix order
 

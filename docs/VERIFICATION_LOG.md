@@ -533,4 +533,15 @@ The ensemble is unit-verified and wired through IPC/UI; it has not been exercise
 
 Schema/metadata only — the PowerShell `shutdown.exe` and `SetWindowPos` paths were not executed (the test host is Linux; the tools are Windows-first), so real power and window-geometry effects remain unverified.
 
+## 37. Release v0.3.0, real screenshots and README refresh (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-87 | `npm test` and `npm run verify` from `companion/` | PASS: 67 test files / 539 tests passed, 0 type errors, 0 lint errors, Electron main/preload/supervisor and Vite renderer builds completed. |
+| V-88 | Version references across `companion/package.json`, `companion/apps/desktop/package.json`, `companion/packages/core/package.json` | Bumped 0.2.0 → 0.3.0 (including the `@companion/core` dependency range) so the release metadata, the packaged artifact name (`Companion-0.3.0-x64.exe`) and the running app's Runtime version agree. |
+| V-89 | Screenshot capture: launched the real Electron app (`node_modules/electron/dist/electron . --remote-debugging-port=9333`) under `Xvfb :99` and drove it over the Chrome DevTools Protocol (`Page.captureScreenshot` at 1440×900) | Four PNGs written to `docs/screenshots/`: `main-interface.png`, `setup.png`, `settings-voice.png`, `settings-providers.png`. Each capture logged the on-screen `document.body.innerText` for confirmation (Talk view, guided setup, voice settings, and the Providers view with the "Combined intelligence" card). The Runtime panel shows `v0.3.0`. |
+| V-90 | Repository inspection of registered tools | Corrected the README tool count: `createOsControlTools()` returns 37 tools; the desktop app registers 46 built-in tools in total (37 OS + 2 web + 5 email + 2 memory). |
+
+The screenshots were captured from the running app in a Linux sandbox. Two caveats are recorded honestly: (1) the OS-specific "Windows Credential Manager could not be read" error banner was suppressed in the captures because the Windows credential store is unavailable on the Linux test host; and (2) Windows-only behaviour (OS actions, credential store, packaged installer) remains unexercised here.
+
 

@@ -3,7 +3,7 @@
 Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling) plus a combined multi-model answer path and a premium dark UI refresh. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling) plus a combined multi-model answer path and a premium dark UI refresh. Release **v0.3.0**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
 
 ## Multi-Model Combine + Premium UI (2026-11-17)
 
@@ -31,7 +31,13 @@ Status: Full OS control (volume, brightness, media keys, lock, sleep, power, win
 - Build succeeds
 
 **Build fix:**
-- ✅ `apps/desktop/package.json` now depends on `@companion/core` `0.2.0` (was `0.1.0`), so `npm install` resolves the workspace package locally.
+- ✅ `apps/desktop/package.json` now depends on `@companion/core` `0.3.0`, so `npm install` resolves the workspace package locally.
+
+**Release v0.3.0 + documentation (2026-11-17):**
+- ✅ Version bumped to **0.3.0** across `companion/package.json`, `apps/desktop/package.json`, `packages/core/package.json` (and the `@companion/core` range).
+- ✅ Root `README.md` rewritten for an advanced-developer audience: real UI screenshots, accurate counts (539 tests / 67 files, 46 registered tools, ~26.5k source lines), combined-intelligence section, refreshed architecture and release notes.
+- ✅ Real screenshots captured from the running Electron app (Xvfb + Chrome DevTools Protocol) into `docs/screenshots/`: `main-interface.png`, `setup.png`, `settings-voice.png`, `settings-providers.png`.
+- ✅ `companion/README.md` release section updated to 0.3.0.
 
 
 ## Production Readiness Sprint - Full OS Control (2026-11-16)

@@ -14,13 +14,14 @@ A voice-first, intelligent Windows desktop companion with autonomous capabilitie
 **Tech Stack:** Electron 45, React 19, TypeScript, Node.js, SQLCipher, Gemini AI, WinRT
 **Highlights:**
 - Voice-first interaction with real-time transcription using Gemini AI
+- Combined intelligence: queries several models at once and keeps the strongest answer
 - Autonomous goal pursuit with risk-based approval workflows
 - Financial management with multi-layer safeguards
 - Learning engine that adapts to user behavior patterns
 - Enterprise security with encrypted storage and credential management
-- 439+ automated tests, 0 type errors
+- 539 automated tests across 67 files, 0 type errors
 
-[Download →](https://github.com/hassan200503/personal-companion-bot/releases/tag/v0.1.0) · [Source →](https://github.com/hassan200503/personal-companion-bot)
+[Download →](https://github.com/hassan200503/personal-companion-bot/releases) · [Source →](https://github.com/hassan200503/personal-companion-bot)
 
 ---
 
