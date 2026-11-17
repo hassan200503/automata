@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question / share an automation
+    url: https://github.com/hassan200503/automata/discussions
+    about: Use Discussions for questions, ideas and "show us what you automated".
+  - name: Report a security vulnerability
+    url: https://github.com/hassan200503/automata/security/advisories/new
+    about: Please report vulnerabilities privately — see SECURITY.md.
+  - name: Read the docs
+    url: https://github.com/hassan200503/automata#readme
+    about: Installation, quickstart, recipes and the full feature list.

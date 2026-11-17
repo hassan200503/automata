@@ -1,0 +1,44 @@
+name: Feature request
+description: Suggest an idea or a new capability.
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Talk about the problem first — the solution is easier to agree on once we do.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What are you trying to do that Automata makes hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have considered
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area does this touch?
+      options:
+        - OS control / automation
+        - Voice
+        - Cognition / providers
+        - Memory / learning
+        - Email / web
+        - UI / UX
+        - Packaging / release
+        - Docs
+        - Other
+    validations:
+      required: true
