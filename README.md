@@ -85,6 +85,8 @@ Speak a command; the router classifies it, the policy engine clears it, and the 
 
 The provider layer is a priority router with circuit breakers, quota tracking, retries, and automatic failover across **8 cloud providers** (Gemini, OpenRouter, Groq, NVIDIA, DeepSeek, OpenAI, Anthropic, Perplexity), any number of **custom OpenAI-compatible endpoints**, and the **ensemble**. The ensemble fans out the same request to every connected model, scores each answer, and keeps the strongest — so Automata can draw on Claude, GPT, Gemini, DeepSeek and others at once.
 
+You can also add a new provider and configure your API key.
+
 - **Failover, never a single point of failure** — models are registered by priority; a failing provider trips its circuit breaker and traffic moves on.
 - **Streaming** — the strongest member streams tokens for low-latency replies.
 - **Auditable** — every ensemble run records the candidates, their latency, and the winning answer.
