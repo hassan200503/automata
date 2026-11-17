@@ -26,6 +26,7 @@ import {
   deleteAllData,
   backupStatus,
   ProviderRouter,
+  EnsembleProvider,
   getProviderEntry,
   getProviderCatalog,
   isRetiredProviderModel,
@@ -279,6 +280,63 @@ function deleteSavedProviderModel(providerId: string): void {
   }
 }
 
+const ENSEMBLE_SETTING_KEY = 'provider.ensemble';
+const ENSEMBLE_PROVIDER_ID = 'ensemble';
+
+/**
+ * Combined intelligence is on by default once two or more providers are
+ * connected. The owner can switch it off (single-model speed, one request per
+ * turn) from Settings → Providers.
+ */
+function ensembleEnabled(): boolean {
+  try {
+    const row = companionDatabase?.raw.prepare('SELECT value FROM settings WHERE key = ?').get(ENSEMBLE_SETTING_KEY) as { value?: string } | undefined;
+    return row?.value !== 'false';
+  } catch {
+    return true;
+  }
+}
+
+function setEnsembleEnabled(enabled: boolean): void {
+  try {
+    companionDatabase?.raw.prepare(
+      'INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at'
+    ).run(ENSEMBLE_SETTING_KEY, String(enabled), new Date().toISOString());
+  } catch {
+    // The setting is recoverable; the ensemble membership is rebuilt on demand.
+  }
+}
+
+/**
+ * Rebuild the multi-model ensemble from the currently registered providers.
+ * Registered at a higher priority than the individual providers so the router
+ * selects it first; the individual providers stay registered for failover and
+ * for streaming (the ensemble streams from its strongest member).
+ */
+function refreshEnsembleProvider(): void {
+  if (!providerRouter) return;
+  providerRouter.unregister(ENSEMBLE_PROVIDER_ID);
+  if (!ensembleEnabled()) return;
+  const members = providerRouter
+    .getProviders()
+    .filter((registration) => registration.provider.id !== ENSEMBLE_PROVIDER_ID)
+    .map((registration) => ({ provider: registration.provider, model: registration.model }));
+  if (members.length < 2) return;
+  providerRouter.register(
+    new EnsembleProvider(members, { id: ENSEMBLE_PROVIDER_ID, name: 'Combined intelligence', strategy: 'best-of' }),
+    50
+  );
+}
+
+function ensembleStatus(): { enabled: boolean; active: boolean; members: number } {
+  const registered = providerRouter?.getProviders().filter((registration) => registration.provider.id !== ENSEMBLE_PROVIDER_ID) ?? [];
+  return {
+    enabled: ensembleEnabled(),
+    active: Boolean(providerRouter?.getProvider(ENSEMBLE_PROVIDER_ID)),
+    members: registered.length,
+  };
+}
+
 function configureFileLogging(): void {
   const logFile = join(app.getPath("userData"), "logs", "companion.log");
 
@@ -351,6 +409,9 @@ async function openStorage(): Promise<void> {
           } catch (e) {
             logger.warn('failed to load stored credentials', { error: String(e) });
           }
+
+          // Combine the connected models into one intelligence when possible.
+          refreshEnsembleProvider();
 
           conversationEngine = new DefaultConversationEngine({
             router,
@@ -523,6 +584,7 @@ async function checkCredentialStore(): Promise<void> {
     const model = resolveProviderModel(providerId, entry.models, requestedModel);
     providerRouter.register(entry.factory(apiKey), 100, model);
     if (model) saveProviderModel(providerId, model);
+    refreshEnsembleProvider();
     const registeredModels = providerRouter.getProviders().map((registration) => registration.model);
     if ((!defaultModel || !registeredModels.includes(defaultModel)) && entry.models.length > 0) {
       defaultModel = model ?? entry.models[0] ?? '';
@@ -542,6 +604,7 @@ async function registerCustomProvider(config: { name: string; baseUrl: string; m
   if (!health.healthy) return { valid: false, error: health.error?.message || 'Custom provider health check failed.' };
   await credentialStore.set(id, apiKey.trim());
   providerRouter.register(provider, 100, config.model.trim());
+  refreshEnsembleProvider();
   return { valid: true, id };
 }
 
@@ -967,12 +1030,25 @@ function registerIpc(): void {
       await credentialStore.delete(providerId);
       deleteSavedProviderModel(providerId);
       providerRouter.unregister(providerId);
+      refreshEnsembleProvider();
       return { ok: true };
     });
 
     ipcMain.handle(ipcChannels.providersAddCustom, async (event, suppliedToken: unknown, config: { name: string; baseUrl: string; model: string }, apiKey: string): Promise<unknown> => {
       assertTrustedSender(event, suppliedToken);
       return registerCustomProvider(config, apiKey);
+    });
+
+    ipcMain.handle(ipcChannels.providersEnsembleGet, (event, suppliedToken: unknown): unknown => {
+      assertTrustedSender(event, suppliedToken);
+      return ensembleStatus();
+    });
+
+    ipcMain.handle(ipcChannels.providersEnsembleSet, (event, suppliedToken: unknown, enabled: unknown): unknown => {
+      assertTrustedSender(event, suppliedToken);
+      setEnsembleEnabled(enabled === true);
+      refreshEnsembleProvider();
+      return ensembleStatus();
     });
 
 
@@ -1384,6 +1460,16 @@ function registerIpc(): void {
     else if (lower.includes('go to sleep') || lower === 'sleep' || lower.includes('put pc to sleep')) {
       toolName = 'os.sleep'; input = {};
     }
+    // Power: restart / shutdown / hibernate
+    else if (lower.includes('restart') || lower.includes('reboot')) {
+      toolName = 'os.power'; input = { action: 'restart' };
+    }
+    else if (lower.includes('shut down') || lower.includes('shutdown') || lower.includes('power off') || lower.includes('turn off the pc') || lower.includes('turn off the computer')) {
+      toolName = 'os.power'; input = { action: 'shutdown' };
+    }
+    else if (lower.includes('hibernate')) {
+      toolName = 'os.power'; input = { action: 'hibernate' };
+    }
     // Close / switch app
     else if (lower.startsWith('close ') || lower.startsWith('quit ') || lower.startsWith('kill ')) {
       const proc = clean.split(/\s+/).slice(1).join(' ').trim();
@@ -1402,6 +1488,18 @@ function registerIpc(): void {
     }
     else if (lower === 'maximize' || lower.includes('maximize window')) {
       toolName = 'os.maximize'; input = {};
+    }
+    else if (lower.includes('move window') || lower.includes('move the window')) {
+      const nums = lower.match(/-?\d+/g);
+      if (nums && nums.length >= 2) {
+        toolName = 'os.moveWindow'; input = { x: Number(nums[0]), y: Number(nums[1]) };
+      }
+    }
+    else if (lower.includes('resize window') || lower.includes('resize the window')) {
+      const nums = lower.match(/\d+/g);
+      if (nums && nums.length >= 2) {
+        toolName = 'os.resizeWindow'; input = { width: Number(nums[0]), height: Number(nums[1]) };
+      }
     }
     else if (lower.includes('list processes') || lower.includes('running processes') || lower.includes('what is running')) {
       toolName = 'os.listProcesses'; input = {};

@@ -79,6 +79,8 @@ type Props = {
   onDeleteAll: () => void;
   onCheckUpdates: () => void;
   updateLabel: string;
+  ensemble: { enabled: boolean; active: boolean; members: number };
+  onToggleEnsemble: (enabled: boolean) => void;
   children?: ReactNode;
 };
 
@@ -253,6 +255,31 @@ export function SettingsShell(props: Props) {
           <section className="settings-panel">
             <h3>Providers</h3>
             <p className="muted">Connect Gemini or another provider from Setup, then return here for status.</p>
+            <div className="ensemble-card">
+              <div className="ensemble-head">
+                <div>
+                  <strong>Combined intelligence</strong>
+                  <p className="muted">Query several connected models at once and keep the strongest answer. Individual models stay available for streaming and failover.</p>
+                </div>
+                <span className={props.ensemble.active ? 'pill pill-live' : 'pill'}>
+                  {props.ensemble.active ? 'Active' : props.ensemble.enabled ? 'Waiting' : 'Off'}
+                </span>
+              </div>
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={props.ensemble.enabled}
+                  disabled={props.ensemble.members < 2}
+                  onChange={(e) => props.onToggleEnsemble(e.target.checked)}
+                />
+                Combine all connected models into one answer
+              </label>
+              <p className="muted">
+                {props.ensemble.members >= 2
+                  ? `${props.ensemble.members} models linked.`
+                  : 'Connect at least two providers to combine their intelligence.'}
+              </p>
+            </div>
             {props.children}
           </section>
         )}

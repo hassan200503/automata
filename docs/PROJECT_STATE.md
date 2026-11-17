@@ -1,9 +1,44 @@
 # Project State
 
-Last updated: 2026-11-16
+Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, window management, text input, clipboard, file ops, web reading, WhatsApp calling). Latest verify: 66 files / 515 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling) plus a combined multi-model answer path and a premium dark UI refresh. Release **v0.3.0**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## Multi-Model Combine + Premium UI (2026-11-17)
+
+**Combined intelligence (ensemble router):**
+- ✅ `EnsembleProvider` (`packages/core/src/providers/ensemble.ts`) implements `ChatProvider`: fans out one request to every connected provider in parallel, scores responses (refusal/empty/JSON aware) and returns the strongest answer. Strategies: `best-of` (default), `majority`, `fastest`.
+- ✅ Registered in the desktop main process at priority 50 behind a persisted `provider.ensemble` setting (enabled by default once two or more providers are connected); individual providers stay registered at priority 100 for streaming and failover.
+- ✅ IPC `providers:ensembleGet` / `providers:ensembleSet`; preload + renderer typings added.
+- ✅ Settings → Providers now shows a "Combined intelligence" card with an active/waiting/off status pill and a toggle.
+- ✅ 17 new tests in `ensemble.test.ts` (scoring, judges, best-of/fastest/majority, timeout keeps arrived candidates, throws when all fail, single-member short-circuit, injected judge, abort propagation, health/capabilities, stream from highest weight).
+
+**Premium UI refresh:**
+- ✅ Near-black neutral token palette with champagne-gold accent, aurora-mint secondary and a cool ambient glow; retuned radii, borders, shadows and a focus glow.
+- ✅ Refined sidebar/brand mark, nav active indicator, glass panels, polished inputs with focus rings, primary-button gradient, chat bubbles, voice panel states and orb, alerts, settings nav and on-brand scrollbars.
+- ✅ CSS bundle grew 15.22 kB → 17.99 kB; build and full `npm run verify` pass.
+
+**New OS operations:**
+- ✅ Power control `os.power` (shutdown / restart / hibernate, optional `delaySeconds` 0–600), Class 3 with mandatory confirmation.
+- ✅ Window control `os.moveWindow` (x/y) and `os.resizeWindow` (width/height) on the foreground window via `SetWindowPos`.
+- ✅ Natural-language patterns added to the command router ("shut down", "restart", "hibernate", "move window to X Y", "resize window to W H").
+- ✅ Tests updated/added: system-control 7 tools, window-control 8 tools, power/move/resize schema coverage.
+
+**Test Results:**
+- 67 files / 539 tests passing (up from 66 / 515 at the start of this work)
+- 0 type errors, 0 lint errors
+- Build succeeds
+
+**Build fix:**
+- ✅ `apps/desktop/package.json` now depends on `@companion/core` `0.3.0`, so `npm install` resolves the workspace package locally.
+
+**Release v0.3.0 + documentation (2026-11-17):**
+- ✅ Version bumped to **0.3.0** across `companion/package.json`, `apps/desktop/package.json`, `packages/core/package.json` (and the `@companion/core` range).
+- ✅ Root `README.md` rewritten for an advanced-developer audience: real UI screenshots, accurate counts (539 tests / 67 files, 46 registered tools, ~26.5k source lines), combined-intelligence section, refreshed architecture and release notes.
+- ✅ Real screenshots captured from the running Electron app (Xvfb + Chrome DevTools Protocol) into `docs/screenshots/`: `main-interface.png`, `setup.png`, `settings-voice.png`, `settings-providers.png`.
+- ✅ `companion/README.md` release section updated to 0.3.0.
+
 
 ## Production Readiness Sprint - Full OS Control (2026-11-16)
 

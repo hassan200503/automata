@@ -510,3 +510,38 @@ The live WinRT microphone path, real owner speech, barge-in timing and raw-audio
 | --- | --- | --- |
 | V-82 | `npm.cmd run verify` from `companion/` | PASS: ESLint 0 errors / 0 warnings, TypeScript clean, 49 test files / 311 tests, Electron main/preload/supervisor and Vite renderer builds completed. Covers IMAP/SMTP helpers, research tools, owner-seed, proactive career/email candidates, and WinRT SSML pitch. |
 | V-83 | `npm.cmd run package -w @companion/desktop`; `Get-FileHash` SHA256 on `apps/desktop/release/Companion-0.1.0-x64.exe` | PASS: NSIS x64 installer rebuilt after production hardening. Artifact `Companion-0.1.0-x64.exe` is 122,837,891 bytes; SHA-256 `32E04C31DFB2FD78CC7C02996BBE8174B0F2138DF1AA2A14CADE86675143B8E8`; unsigned (expected without G4). Bundled helper `resources/voice/CompanionVoice.exe` is 23,552 bytes. |
+
+## 34. Combined multi-model answer path (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-84 | `npm run verify` from `companion/` (lint + typecheck + test + build) | PASS: ESLint 0 errors, TypeScript clean, 67 test files / 532 tests passed (up from 66 / 515), Electron main/preload/supervisor and Vite renderer builds completed. The 17 new tests in `packages/core/src/providers/ensemble.test.ts` cover response scoring (empty/refusal/JSON), the default best-of judge, majority voting, best-of/fastest/majority complete paths, timeout keeping arrived candidates, throwing `provider_down` when every member fails, single-member short-circuit, an injected judge, abort propagation, health/capabilities merging, and streaming from the highest-weight member. |
+
+The ensemble is unit-verified and wired through IPC/UI; it has not been exercised against live provider accounts, and the desktop renderer was not launched under CDP in this pass.
+
+## 35. Premium UI refresh (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-85 | `npm run build -w @companion/desktop` and `npm run verify` from `companion/`; inspect Vite CSS bundle size | PASS: the renderer CSS bundle changed from 15.22 kB to 17.99 kB after the token palette and component refinements; the full gate stayed green. This is a build/packaging check only — the refreshed surfaces were not visually reviewed in this Linux sandbox (the app is Windows-first). |
+
+## 36. Additional OS operations (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-86 | `npm run typecheck`; `npx vitest run packages/core/src/os-control/system-control.test.ts packages/core/src/os-control/window-control.test.ts`; `npm run verify` from `companion/` | PASS: `os.power` (shutdown/restart/hibernate, Class 3 + confirmation), `os.moveWindow` and `os.resizeWindow` added with NL patterns; 32 focused tests passed; full gate green at 67 files / 539 tests, 0 lint errors, 0 type errors, both builds passed. |
+
+Schema/metadata only — the PowerShell `shutdown.exe` and `SetWindowPos` paths were not executed (the test host is Linux; the tools are Windows-first), so real power and window-geometry effects remain unverified.
+
+## 37. Release v0.3.0, real screenshots and README refresh (2026-11-17)
+
+| ID | Command / inspection | Observed result |
+| --- | --- | --- |
+| V-87 | `npm test` and `npm run verify` from `companion/` | PASS: 67 test files / 539 tests passed, 0 type errors, 0 lint errors, Electron main/preload/supervisor and Vite renderer builds completed. |
+| V-88 | Version references across `companion/package.json`, `companion/apps/desktop/package.json`, `companion/packages/core/package.json` | Bumped 0.2.0 → 0.3.0 (including the `@companion/core` dependency range) so the release metadata, the packaged artifact name (`Companion-0.3.0-x64.exe`) and the running app's Runtime version agree. |
+| V-89 | Screenshot capture: launched the real Electron app (`node_modules/electron/dist/electron . --remote-debugging-port=9333`) under `Xvfb :99` and drove it over the Chrome DevTools Protocol (`Page.captureScreenshot` at 1440×900) | Four PNGs written to `docs/screenshots/`: `main-interface.png`, `setup.png`, `settings-voice.png`, `settings-providers.png`. Each capture logged the on-screen `document.body.innerText` for confirmation (Talk view, guided setup, voice settings, and the Providers view with the "Combined intelligence" card). The Runtime panel shows `v0.3.0`. |
+| V-90 | Repository inspection of registered tools | Corrected the README tool count: `createOsControlTools()` returns 37 tools; the desktop app registers 46 built-in tools in total (37 OS + 2 web + 5 email + 2 memory). |
+
+The screenshots were captured from the running app in a Linux sandbox. Two caveats are recorded honestly: (1) the OS-specific "Windows Credential Manager could not be read" error banner was suppressed in the captures because the Windows credential store is unavailable on the Linux test host; and (2) Windows-only behaviour (OS actions, credential store, packaged installer) remains unexercised here.
+
+

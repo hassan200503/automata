@@ -1,282 +1,261 @@
-# Companion AI — Enterprise-Grade Windows Automation Assistant
+# Companion — Voice-First Windows AI Companion
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
 ![License](https://img.shields.io/badge/license-UNLICENSED-red.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D22.5.0-green.svg)
 ![Electron](https://img.shields.io/badge/electron-45-9BE349.svg)
-![TypeScript](https://img.shields.io/badge/typescript-5.0-blue.svg)
-![Tests](https://img.shields.io/badge/tests-515%20passing-brightgreen.svg)
-![Files](https://img.shields.io/badge/test%20files-66-brightgreen.svg)
+![TypeScript](https://img.shields.io/badge/typescript-6.0-blue.svg)
+![Tests](https://img.shields.io/badge/tests-539%20passing-brightgreen.svg)
+![Files](https://img.shields.io/badge/test%20files-67-brightgreen.svg)
 ![Build](https://img.shields.io/badge/build-passing-success.svg)
 
-**A voice-first, autonomous Windows desktop assistant with full OS control, AI reasoning, and enterprise-grade security.**
+**A voice-first, autonomous Windows desktop assistant with full OS control, multi-model AI reasoning, and enterprise-grade safety.**
 
-[![Download](https://img.shields.io/badge/download-v0.2.0-brightgreen.svg)](https://github.com/hassan200503/personal-companion-bot/releases/tag/v0.2.0)
+[![Download](https://img.shields.io/badge/download-latest%20release-brightgreen.svg)](https://github.com/hassan200503/personal-companion-bot/releases)
 
 </div>
 
 ---
 
+## Screenshots
+
+Captured from the running Electron app.
+
+| Talk — voice-first chat stage | Guided setup — provider onboarding |
+| :---: | :---: |
+| ![Talk view](docs/screenshots/main-interface.png) | ![Setup view](docs/screenshots/setup.png) |
+
+| Settings → Voice | Settings → Providers — combined intelligence |
+| :---: | :---: |
+| ![Voice settings](docs/screenshots/settings-voice.png) | ![Providers / ensemble](docs/screenshots/settings-providers.png) |
+
+---
+
 ## Overview
 
-Companion AI is a production-ready Windows desktop application that gives you 95% PC automation through natural language and voice. Built on Electron 45, React 19, and TypeScript 5, it combines an AI reasoning engine with direct OS control tools — so you can tell it to play a song by name, browse and read web pages aloud, manage files, control system settings, open WhatsApp and call people by name, and carry on intelligent conversations about your ideas, stories, and plans.
+Companion is a production-oriented Windows desktop application that turns natural language and voice into real OS actions. Speak or type a request and it runs against a **registry of 46 typed, risk-classified tools** — launching apps, playing media by name, reading web pages and email aloud, driving windows, typing text, managing files, and controlling system settings — while a **multi-model reasoning core** plans, streams, and explains what it is doing.
 
-The bot thinks and reasons for itself using a multi-layer cognition system (L0–L7 prompt layers, DecisionOrchestrator, style normalizer). It learns from every interaction through episode logging, behavioral consolidation, and recipe learning. Every action passes through a risk-classified policy engine with audit logging, confirmation flows, and an emergency stop.
+The companion does not just execute commands. It reasons over a layered cognition pipeline, remembers what it learns, and is deliberately honest: it only claims an OS action succeeded when the action was actually observed. Every tool call passes through a policy engine with risk classes, rate limits, confirmation flows, an audit trail, and a global emergency stop.
 
-### What's New in v0.2.0
+### What's New in v0.3.0
 
-- **29 new OS control tools** — volume, brightness, media keys, lock/sleep, app switching, window management, process control, text input, clipboard, file operations, web page reading, WhatsApp calling
-- **Natural language command router** — ~30 new regex patterns so you can say "set volume to 50", "lock screen", "close notepad", "type hello world", "read https://example.com aloud", "call John on WhatsApp"
-- **Cognition streaming** — DecisionOrchestrator output now streams in word-level chunks instead of blocking
-- **Byte-size cache eviction** — ResponseCache enforces a 2 MB memory budget alongside count-based LRU
-- **Conversation lock cleanup** — deleting a conversation no longer leaks locks
-- **76 new tests** — 515 total across 66 files, up from 439 across 61
+- **Combined intelligence (multi-model ensemble)** — a new `EnsembleProvider` queries every connected model in parallel and returns the single strongest answer using a deterministic `best-of` / `majority` / `fastest` selector, with an auditable per-run log. Enable it with one toggle in **Settings → Providers**.
+- **Premium dark UI** — refreshed token-based design system (near-black surface, champagne-gold and aurora-mint accents), reworked chat stage, voice dock, inputs, and settings shell.
+- **Expanded OS control** — new power actions (`os.power`: shutdown / restart / hibernate with optional delay) and window geometry (`os.moveWindow`, `os.resizeWindow`) bring the OS tool set to **37 tools**, plus natural-language patterns for each.
+- **Refreshed documentation and screenshots** — this README, updated release metadata, and real UI captures.
+
+### Previously in v0.2.0
+
+- Full OS control surface (volume, brightness, media keys, lock/sleep, app switching, window management, process control, text input, clipboard, file ops, web reading, WhatsApp calling).
+- Natural-language command router with ~30 regex patterns.
+- Streaming cognition output, byte-size response-cache eviction, conversation-lock cleanup.
 
 ---
 
 ## Key Capabilities
 
-### Full OS Control (95% Automation)
+### Full OS Control
 
-| Category | Tools | What You Can Say |
-|----------|-------|-----------------|
-| **System** | volume, mute, mediaKey, brightness, lockScreen, sleep | "set volume to 50", "mute", "play/pause", "next track", "lock screen", "sleep" |
-| **Windows** | closeApp, switchApp, minimize, maximize, listProcesses, killProcess | "close notepad", "switch to chrome", "minimize window", "maximize", "list processes", "kill PID 1234" |
-| **Text Input** | typeText, sendKeys, clipboardRead, clipboardWrite, clipboardClear | "type hello world", "press ctrl+c", "read clipboard", "copy to clipboard" |
-| **File Ops** | listFiles, searchFiles, copyFile, moveFile, deleteFile, createFolder | "list files in Documents", "search for *.pdf", "copy file.txt to backup", "delete temp.txt", "create folder Reports" |
-| **Web Reading** | readPage (HTML → speakable text) | "read https://example.com aloud", "browse and read that page" |
-| **WhatsApp** | call (voice/video by name), sendMessage | "call John on WhatsApp", "video call Mom", "message Sarah hello" |
-| **Media** | playSong (local index → Spotify → YouTube), speakText | "play Bohemian Rhapsody", "read that out loud" |
-| **Email** | Gmail read-aloud, categorization, importance scoring | "read my emails", "check inbox" |
+Speak a command; the router classifies it, the policy engine clears it, and the matching tool runs.
 
-### AI Reasoning & Conversation
+| Category | Example tools | Example commands |
+| --- | --- | --- |
+| **System** | `os.volume`, `os.mute`, `os.mediaKey`, `os.brightness`, `os.lockScreen`, `os.sleep`, `os.power` | "set volume to 50", "next track", "lock screen", "restart in 2 minutes" |
+| **Windows** | `os.closeApp`, `os.switchApp`, `os.minimize`, `os.maximize`, `os.moveWindow`, `os.resizeWindow`, `os.listProcesses`, `os.killProcess` | "close notepad", "switch to chrome", "move the window to 100,100" |
+| **Text input** | `os.typeText`, `os.sendKeys`, `os.clipboardRead`, `os.clipboardWrite`, `os.clipboardClear` | "type hello world", "press ctrl+c", "read clipboard" |
+| **Files** | `os.listFiles`, `os.searchFiles`, `os.copyFile`, `os.moveFile`, `os.deleteFile`, `os.createFolder` | "search for *.pdf", "copy report.txt to backup", "create folder Reports" |
+| **Media & capture** | `os.play`, `os.speak`, `os.screenshot`, `os.photo`, `os.video`, `os.camera` | "play Bohemian Rhapsody", "read that aloud", "take a screenshot" |
+| **Communication** | `os.call`, `os.whatsappSend`, `whatsapp.call` | "call John on WhatsApp", "message Sarah hello" |
+| **Web & email** | `web.readPage`, `web.research`, `email.readAloud`, `email.important` | "read https://example.com aloud", "read my important email" |
+| **Memory** | `memory.search`, `memory.propose` | "what did I say about the budget?" |
 
-- **Multi-layer cognition** — L0 safety boundary, L1 persona, L2 context, L3 memory, L4 tools, L5 style, L6 policy, L7 output. The DecisionOrchestrator compiles all layers into a final decision with speech text
-- **Streaming responses** — cognition output streams word-by-word for real-time UX
-- **Conversation memory** — per-conversation mutex locking, response caching (100 entries, 5 min TTL, 2 MB budget), episode logging
-- **Style normalizer** — ensures consistent voice across responses
-- **Fallback chain** — Gemini → OpenRouter with circuit breakers and automatic failover
+### Combined Intelligence — Multi-Model Reasoning
+
+The provider layer is a priority router with circuit breakers, quota tracking, retries, and automatic failover across **8 cloud providers** (Gemini, OpenRouter, Groq, NVIDIA, DeepSeek, OpenAI, Anthropic, Perplexity), any number of **custom OpenAI-compatible endpoints**, and the **ensemble**. The ensemble fans out the same request to every connected model, scores each answer, and keeps the strongest — so the companion can draw on Claude, GPT, Gemini, DeepSeek and others at once.
+
+- **Failover, never a single point of failure** — models are registered by priority; a failing provider trips its circuit breaker and traffic moves on.
+- **Streaming** — the strongest member streams tokens for low-latency replies.
+- **Auditable** — every ensemble run records the candidates, their latency, and the winning answer.
+
+### Cognition & Conversation
+
+- **Layered prompt compilation (L0–L7)** — safety boundary, persona, context, memory, tools, style, policy, output.
+- **Decision orchestrator** — combines all layers into one decision plus the speech text.
+- **Style normalizer** — keeps the spoken voice consistent.
+- **Response cache** — 100 entries, 5-minute TTL, 2 MB byte budget with LRU eviction.
 
 ### Learning Engine
 
-- **Episode logging** — records every conversation turn with outcome tracking
-- **Consolidation job** — extracts behavioral patterns (topics, tools, time-based routines)
-- **Recipe learning** — remembers successful automation sequences for reuse
-- **Weekly review UI** — approve or reject learned facts with evidence display
+- **Episode logging** — every turn recorded with outcome tracking.
+- **Consolidation** — extracts behavioral patterns (topics, tools, routines).
+- **Recipe learning** — remembers successful automation sequences for reuse.
+- **Weekly review** — approve or reject learned facts with the supporting evidence.
 
-### Enterprise Security
+### Privacy & Safety
 
-- **SQLCipher encrypted storage** with DPAPI-wrapped keys
-- **Windows Credential Manager** via `@github/keytar` for API keys and OAuth tokens
-- **Risk-classified tool execution** — Class 1 (auto-approve) through Class 4 (always blocked)
-- **Policy engine** — rate limiting (Class 1: 50/min, Class 2: 20/min, Class 3: 5/min, Class 4: 0)
-- **Confirmation manager** — read-back flow for Class 2+, explicit confirmation for Class 3+
-- **Audit logger** — comprehensive trail for every autonomous action
-- **Emergency stop** — global `Ctrl+Shift+Esc` shortcut kills all operations instantly
-- **Lock/focus gating** — stops operation when screen is locked or app loses focus
-- **Untrusted content boundary** — web page content is tagged `untrusted_content` and never injected into prompts without sanitization
+- **SQLCipher-encrypted storage** with DPAPI-wrapped keys.
+- **Windows Credential Manager** (`@github/keytar`) for API keys and tokens — never hardcoded, never logged.
+- **Risk classes 1–4** with rate limits (Class 1: 50/min · Class 2: 20/min · Class 3: 5/min · Class 4: blocked).
+- **Confirmation flows** — spoken read-back for Class 2, explicit approval for Class 3.
+- **Audit trail** and a global **emergency stop** (`Ctrl+Shift+Esc`).
+- **Untrusted content boundary** — web and email text is tagged and never injected into prompts unsanitized.
 
 ---
 
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                      Electron Desktop App (45)                     │
+┌────────────────────────────────────────────────────────────────────┐
+│                       Electron Desktop App (45)                     │
+├───────────────────────────────────┬────────────────────────────────┤
+│  Renderer — React 19 + Vite 8     │  Main — Node + esbuild          │
+│  ┌───────────────────────────┐    │  ┌───────────────────────────┐  │
+│  │ Voice dock / chat stage   │    │  │ Provider router           │  │
+│  │ Settings shell            │    │  │   ├─ 8 cloud providers    │  │
+│  │ Memory inbox / review     │    │  │   ├─ custom endpoints     │  │
+│  │ Alerts rail               │    │  │   └─ ensemble (combined)  │  │
+│  └───────────────────────────┘    │  │ Conversation engine       │  │
+│                                   │  │   ├─ mutex locking        │  │
+│                                   │  │   ├─ response cache (LRU) │  │
+│                                   │  │   └─ episode logger       │  │
+│                                   │  │ Cognition (L0–L7)         │  │
+│                                   │  │   ├─ prompt compiler      │  │
+│                                   │  │   ├─ decision orchestrator│  │
+│                                   │  │   └─ style normalizer     │  │
+│                                   │  │ Tool executor             │  │
+│                                   │  │   ├─ policy engine        │  │
+│                                   │  │   ├─ confirmation manager │  │
+│                                   │  │   ├─ audit logger         │  │
+│                                   │  │   └─ 46 tool definitions  │  │
+│                                   │  │ Storage + credentials     │  │
+│                                   │  └───────────────────────────┘  │
+└───────────────────────────────────┴────────────────────────────────┘
+                                   │
+                                   ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                       Core packages (TypeScript)                    │
 ├────────────────────────────────────────────────────────────────────┤
-│  Renderer (React 19 + Vite 8)     │  Main (Node.js + esbuild)     │
-│  ┌────────────────────────────┐   │  ┌──────────────────────────┐ │
-│  │ Voice Dock                 │   │  │ Provider Router          │ │
-│  │ Chat Stage                 │   │  │   ├─ Gemini (chat+STT)   │ │
-│  │ Settings Shell             │   │  │   └─ OpenRouter (fallback)│ │
-│  │ Memory Inbox               │   │  │ Conversation Engine       │ │
-│  │ Weekly Review              │   │  │   ├─ Mutex locking        │ │
-│  │ Alerts Rail                │   │  │   ├─ Response cache (LRU) │ │
-│  │ Autonomous Dashboard       │   │  │   └─ Episode logger       │ │
-│  └────────────────────────────┘   │  │ Cognition Layer           │ │
-│                                  │  │   ├─ Prompt Compiler L0-L7│ │
-│                                  │  │   ├─ DecisionOrchestrator  │ │
-│                                  │  │   └─ Style Normalizer      │ │
-│                                  │  │ Tool Executor              │ │
-│                                  │  │   ├─ Policy Engine          │ │
-│                                  │  │   ├─ Confirmation Manager   │ │
-│                                  │  │   ├─ Audit Logger           │ │
-│                                  │  │   └─ 50+ tool definitions   │ │
-│                                  │  │ Storage (SQLCipher + DPAPI)│ │
-│                                  │  │ Credential Manager (keytar)│ │
-│                                  │  │ UI Automation Bridge        │ │
-│                                  │  │ Emergency Stop              │ │
-│                                  │  └──────────────────────────┘ │
+│  conversation/  cognition/   tools/       os-control/              │
+│  memory/        learning/    providers/   research/                │
+│  autonomous/    email/       voice/       security/                │
+│  payments/      storage/     plugins/                             │
 └────────────────────────────────────────────────────────────────────┘
-                               │
-                               ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                     Core Packages (TypeScript)                     │
+                                   │
+                                   ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                          External services                          │
 ├────────────────────────────────────────────────────────────────────┤
-│  conversation/   cognition/      tools/          os-control/       │
-│  memory/         learning/       providers/      research/         │
-│  autonomous/     email/          voice/          security/         │
-│  payments/       schema/         plugins/                         │
-└────────────────────────────────────────────────────────────────────┘
-                               │
-                               ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                      External Services                             │
-├────────────────────────────────────────────────────────────────────┤
-│  Gemini AI (chat + transcription)                                 │
-│  OpenRouter (fallback provider with circuit breakers)             │
-│  Gmail API (email intelligence)                                   │
-│  PayPal API (financial operations, sandbox + live)                │
-│  WhatsApp Web (via UI Automation)                                 │
-│  Windows APIs (PowerShell, Win32, WinRT TTS, UI Automation)       │
+│  AI providers (Gemini · OpenRouter · Groq · NVIDIA · DeepSeek ·    │
+│  OpenAI · Anthropic · Perplexity · custom)                         │
+│  Gmail · PayPal · WhatsApp Web (UI automation)                     │
+│  Windows APIs (PowerShell · Win32 · WinRT TTS · UI Automation)     │
 └────────────────────────────────────────────────────────────────────┘
 ```
 
-### Technology Stack
+### Technology stack
 
 | Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 19, Vite 8, TypeScript 5, Inter font, glass-morphism UI |
-| **Desktop** | Electron 45, Node.js ≥22.5, esbuild, electron-builder (NSIS) |
-| **Core** | TypeScript 5 strict mode, SQLCipher, Zod schemas, Vitest |
-| **AI** | Gemini API (chat + STT), OpenRouter (fallback), Provider Router with circuit breakers |
-| **OS Control** | PowerShell, Win32 API (SetForegroundWindow, ShowWindow), UI Automation, SendKeys |
-| **Security** | SQLCipher + DPAPI, Windows Credential Manager (keytar), risk-classified policy engine |
-| **Testing** | Vitest — 515 tests across 66 files, 0 type errors, 0 lint errors |
+| --- | --- |
+| **Frontend** | React 19.3, Vite 8.3, TypeScript 6.0, Inter font, glass-morphism design tokens |
+| **Desktop** | Electron 45, Node.js ≥ 22.5, esbuild, electron-builder (NSIS) |
+| **Core** | TypeScript 6.0 (strict), SQLCipher, Zod, Vitest 5 |
+| **AI** | Multi-provider router with circuit breakers, quotas, failover and ensemble |
+| **OS control** | PowerShell, Win32 (`SetForegroundWindow`, `SetWindowPos`, `ShowWindow`), UI Automation, SendKeys |
+| **Security** | SQLCipher + DPAPI, Windows Credential Manager, risk-classified policy engine |
 
-### Project Size
+### Project size
 
-- **~25,800 lines** of TypeScript + TSX source
-- **212 TypeScript source files** (excluding tests, dist, node_modules)
-- **50+ tool definitions** across 8 tool categories
-- **515 tests** across 66 test files
+| Metric | Value |
+| --- | --- |
+| Source | ~26,500 lines across 153 TypeScript/TSX files |
+| Tests | ~7,700 lines across 67 files |
+| Tools | 46 built-in tool definitions |
+| Providers | 8 cloud providers + custom OpenAI-compatible + ensemble |
 
 ---
 
-## Installation
+## Getting Started
 
-### Option 1: Installer (Recommended)
+### Option 1 — Installer (recommended)
 
-1. Download `Companion-0.2.0-x64.exe` from [Releases v0.2.0](https://github.com/hassan200503/personal-companion-bot/releases/tag/v0.2.0)
-2. Run the installer and follow the wizard
-3. Launch Companion from the Start menu
-4. Complete the onboarding wizard
+1. Download the latest installer from [Releases](https://github.com/hassan200503/personal-companion-bot/releases).
+2. Run the wizard and launch **Companion** from the Start menu.
+3. Complete the guided onboarding.
 
-### Option 2: Build from Source
+### Option 2 — Build from source
 
-**Prerequisites:** Windows 10/11 (64-bit), Node.js ≥22.5, npm ≥10
+**Prerequisites:** Windows 10/11 (64-bit), Node.js ≥ 22.5, npm ≥ 10.
 
 ```bash
 git clone https://github.com/hassan200503/personal-companion-bot.git
 cd personal-companion-bot/companion
 
-# Install dependencies
-npm install
-
-# Development mode
-npm start
-
-# Full verification (lint + typecheck + test + build)
-npm run verify
-
-# Package as Windows installer
-npm run package
+npm install          # install workspaces
+npm start            # run in development
+npm run verify       # lint + typecheck + test + build
+npm run package      # produce a Windows NSIS installer (Companion-<version>-x64.exe)
 ```
 
-### Quick Start
+### Quick start
 
-1. **Configure AI Provider** — Settings → Providers → Add Gemini API key (get one at https://console.cloud.google.com/)
-2. **Set Up Voice** — Settings → Voice → Enable cloud speech consent → Select voice → Test
-3. **Configure Services** (optional) — Email (Gmail app password), WhatsApp (grant permissions), Payments (PayPal sandbox)
-4. **Start Talking** — Click the microphone icon or type a command
+1. **Connect a model** — Settings → Providers → add a Gemini key (or any catalog provider).
+2. **Combine models (optional)** — with two or more providers connected, enable **Combined intelligence**.
+3. **Set up voice** — Settings → Voice → enable cloud speech consent → pick a voice → test.
+4. **Talk** — press the microphone in the voice dock or type a command.
 
 ---
 
 ## Usage Examples
 
-### Voice & Text Commands
-
 ```
-"play Bohemian Rhapsody"           → Searches local index, falls back to Spotify, then YouTube
-"set volume to 50"                 → Sets system volume to 50%
-"mute" / "unmute"                  → Toggles system mute
-"next track" / "previous track"    → Media key control
-"lock screen"                      → Locks the Windows workstation
-"sleep"                            → Puts the system to sleep
-"close notepad"                    → Closes the Notepad window
-"switch to chrome"                 → Brings Chrome to foreground
-"minimize window"                  → Minimizes active window
-"list processes"                   → Shows top 30 processes by memory
-"type hello world"                 → Types text into the focused window
-"press ctrl+c"                     → Sends keyboard shortcut
-"read clipboard"                   → Reads clipboard contents aloud
-"list files in Documents"          → Lists files in the Documents folder
-"search for *.pdf"                 → Searches for PDF files
-"copy report.txt to backup"        → Copies a file
-"delete temp.txt"                  → Deletes a file (requires confirmation)
-"create folder Reports"            → Creates a new folder
-"read https://example.com aloud"   → Fetches page, extracts text, reads it aloud
-"call John on WhatsApp"            → Opens WhatsApp, searches for John, initiates voice call
-"video call Mom on WhatsApp"       → Initiates a video call
-"read my emails"                   → Fetches Gmail, categorizes, reads summaries aloud
-"check inbox"                      → Checks for new emails
+"play Bohemian Rhapsody"          → local index → Spotify → YouTube search
+"set volume to 50" / "mute"       → system audio control
+"next track" / "previous track"   → media keys
+"lock screen" / "restart in 2 min"→ power actions (restart requires confirmation)
+"close notepad" / "switch to chrome"
+"move the window to 100,100"      → window geometry
+"type hello world" / "press ctrl+c"
+"read clipboard"                  → speaks clipboard contents
+"search for *.pdf"                → file search
+"copy report.txt to backup"
+"read https://example.com aloud"  → fetch, extract, speak (untrusted content)
+"call John on WhatsApp"           → open app, search contact, start call
+"read my important email"         → Gmail fetch, score, summarize aloud
 ```
 
-### Conversation & Reasoning
-
-The companion doesn't just execute commands — it reasons. You can:
-
-- **Share ideas** — "I'm thinking about building a budget tracker app, what do you think?"
-- **Tell stories** — "Let me tell you about my day..."
-- **Plan together** — "Help me plan a study schedule for next week"
-- **Ask for analysis** — "What are the tradeoffs between React and Vue for a small project?"
-
-The cognition layer compiles your conversation history, memory snippets, active tools, persona, and policy constraints into a single decision, then streams the response back in real time.
+Beyond commands, you can think out loud — "help me plan a study schedule for next week", "what are the trade-offs between React and Vue?" — and the cognition layer answers in real time.
 
 ---
 
-## Tool Categories
+## Tool Reference
 
-### OS Control (29 tools)
+### OS control — 37 tools
 
-| Module | Tools | Risk Class |
-|--------|-------|-----------|
-| `system-control` | volume, mute, mediaKey, brightness, lockScreen, sleep | 1–2 |
-| `window-control` | closeApp, switchApp, minimize, maximize, listProcesses, killProcess | 1–3 |
+| Module | Tools | Risk |
+| --- | --- | --- |
+| `system-control` | volume, mute, mediaKey, brightness, lockScreen, sleep, power | 1–3 |
+| `window-control` | closeApp, switchApp, minimize, maximize, listProcesses, killProcess, moveWindow, resizeWindow | 1–3 |
 | `text-input` | typeText, sendKeys, clipboardRead, clipboardWrite, clipboardClear | 1–2 |
 | `file-ops` | listFiles, searchFiles, copyFile, moveFile, deleteFile, createFolder | 1–3 |
-| `clipboard-native` | readClipboard, writeClipboard, clearClipboard | 1 |
-| `windows` | openTarget, playMedia, speakText, makeCall, runCommand, takeScreenshot, sendWhatsAppMessage | 1–3 |
-| `whatsapp-tools` | whatsapp.call, whatsapp.sendMessage | 2–3 |
+| `tools` (core OS) | open, play, speak, call, run, screenshot, camera, photo, video, whatsappSend | 1–3 |
+| `whatsapp-tools` | whatsapp.call | 2–3 |
 
-### Research (2 tools)
+### Web, email & memory — 9 tools
 
-| Module | Tools | Risk Class |
-|--------|-------|-----------|
-| `web-read` | web.readPage (HTML → speakable text, untrusted content) | 1 |
-| `web-research` | web.search (DuckDuckGo + Wikipedia) | 1 |
+| Module | Tools | Risk |
+| --- | --- | --- |
+| `research` | web.research (DuckDuckGo + Wikipedia), web.readPage | 1 |
+| `email` | listRecent, summarize, important, readAloud, send | 1–3 |
+| `memory` | memory.search, memory.propose | 1 |
 
-### Autonomous & Financial
+### Risk class reference
 
-| Module | Tools | Risk Class |
-|--------|-------|-----------|
-| `autonomous` | goal pursuit engine, action executor | 2–4 |
-| `payments` | PayPal operations (sandbox + live) | 3–4 |
-
-### Email
-
-| Module | Tools | Risk Class |
-|--------|-------|-----------|
-| `email` | Gmail read, categorize, importance score, read-aloud | 1–2 |
-
-### Risk Class Reference
-
-| Class | Description | Behavior |
-|-------|-------------|----------|
-| 1 | Safe / read-only | Auto-approved, no confirmation |
-| 2 | Low risk | Read-back confirmation (spoken before execution) |
+| Class | Meaning | Behaviour |
+| --- | --- | --- |
+| 1 | Safe / read-only | Auto-approved |
+| 2 | Low risk | Spoken read-back before execution |
 | 3 | Medium risk | Explicit confirmation required |
 | 4 | High risk | Always blocked |
 
@@ -285,159 +264,126 @@ The cognition layer compiles your conversation history, memory snippets, active 
 ## Testing
 
 ```bash
-# Run all tests
-npm test
-
-# Run with verbose output
-npx vitest run --reporter=verbose
-
-# Full verification suite (lint + typecheck + test + build)
-npm run verify
+npm test                          # vitest
+npx vitest run --reporter=verbose # verbose output
+npm run verify                    # lint + typecheck + test + build
 ```
 
-### Test Results
+### Current results
 
 | Metric | Value |
-|--------|-------|
-| Test files | 66 |
-| Tests passing | 515 |
+| --- | --- |
+| Test files | 67 |
+| Tests passing | 539 |
 | Type errors | 0 |
 | Lint errors | 0 |
-| Build status | Passing |
+| Build | Passing |
 
-### Test Coverage Areas
-
-- **Tool definitions** — schema validation, risk class, permission checks
-- **Policy engine** — rate limiting, confirmation flows, trusted intent guard
-- **Conversation engine** — mutex locking, caching, streaming, episode logging
-- **Provider router** — circuit breakers (closed/open/half-open), quota ledger, failover
-- **OS control modules** — input validation, abort handling, CSV parsing
-- **File operations** — real temp directory tests (list, search, copy, move, delete, create)
-- **Web reading** — HTML stripping, entity decoding, speakable clipping, URL validation
-- **Memory & learning** — normalization, consolidation, recipe learning
-- **Security** — encrypted storage, credential management, audit logging
+Coverage spans tool schemas and risk classes, the policy engine and rate limiting, conversation locking/caching/streaming, provider circuit breakers and failover, the ensemble selector, OS-control input validation, real temp-directory file operations, web-page extraction, memory/learning, and encrypted storage.
 
 ---
 
 ## Security
 
-### Credential Management
-
-All credentials are stored using Windows Credential Manager (`@github/keytar`):
-
-- **AI Providers** — Gemini, OpenRouter API keys
-- **Email** — Gmail app passwords, OAuth tokens
-- **Payments** — PayPal client ID and secret
-
-Credentials are never hardcoded, never logged, and encrypted at rest via DPAPI.
-
-### Safety System
-
-- **Risk-classified execution** — every tool declares a risk class (1–4)
-- **Policy engine** — evaluates every tool call against permissions, rate limits, and trusted intent
-- **Confirmation manager** — read-back flow for Class 2, explicit approval for Class 3
-- **Audit logger** — every autonomous action is logged with metadata
-- **Emergency stop** — `Ctrl+Shift+Esc` kills all operations instantly
-- **Lock/focus gating** — stops when screen is locked or app loses focus
-- **Untrusted content boundary** — web content tagged `untrusted_content`, never raw-injected into prompts
+- **Credentials** live in Windows Credential Manager (`@github/keytar`); secrets are never hardcoded or logged and are encrypted at rest via DPAPI.
+- **Every tool** declares a risk class (1–4) and is evaluated by the policy engine against permissions, rate limits and trusted-intent rules.
+- **Confirmations** gate anything Class 2+; Class 3 requires explicit approval; Class 4 is blocked.
+- **Audit logging** records every autonomous action; **emergency stop** (`Ctrl+Shift+Esc`) halts everything; lock/focus gating pauses work when the screen locks or focus is lost.
+- **Untrusted content** (web pages, email bodies) is tagged and sanitized before it can influence a prompt.
 
 See [SECURE_SETUP.md](docs/SECURE_SETUP.md) and [THREAT_MODEL.md](docs/THREAT_MODEL.md) for details.
 
 ---
 
+## Repository Layout
+
+```
+personal-companion-bot/
+├── companion/                 # Windows-first desktop app (this project)
+│   ├── apps/desktop/          # Electron shell (main · preload · renderer)
+│   └── packages/core/         # Framework-neutral TypeScript core
+├── docs/                      # Spec, state, security and verification docs
+│   └── screenshots/           # UI screenshots used by this README
+├── src/ · scripts/ · data/    # Legacy WhatsApp persona bot (separate, unmaintained)
+└── README.md
+```
+
+---
+
 ## Documentation
 
-### User Guides
+**User & operator**
 
-- [Secure Setup Guide](docs/SECURE_SETUP.md) — Credential configuration
-- [Enterprise Ready](docs/ENTERPRISE_READY.md) — Production readiness checklist
-- [Gate Approvals](docs/DECISIONS/GATE_APPROVALS.md) — G3, G5, G6, G7 approval records
+- [Secure Setup Guide](docs/SECURE_SETUP.md) — credential configuration
+- [Enterprise Ready](docs/ENTERPRISE_READY.md) — production-readiness checklist
+- [Gate Approvals](docs/DECISIONS/GATE_APPROVALS.md) — approval records
 
-### Developer Documentation
+**Developer**
 
-- [Project State](docs/PROJECT_STATE.md) — Implementation status and milestones
-- [Gap List](docs/GAPS.md) — Known issues and improvement tracking
-- [Verification Log](docs/VERIFICATION_LOG.md) — Test results and evidence
-- [Requirements](docs/REQUIREMENTS.md) — Feature requirements registry
-- [Agent Brief](docs/AGENT_BRIEF.md) — Complete system specification
-- [Threat Model](docs/THREAT_MODEL.md) — Security threat analysis
-
-### Source
-
-- [Core Packages](companion/packages/core/src/) — TypeScript source with JSDoc
-- [Tool Registry](companion/packages/core/src/tools/) — Tool definitions and contracts
-- [OS Control](companion/packages/core/src/os-control/) — 29 OS automation tools
-- [Cognition](companion/packages/core/src/cognition/) — Prompt compiler and decision orchestrator
-- [Security](companion/packages/core/src/security/) — Encryption, credentials, audit
+- [Project State](docs/PROJECT_STATE.md) — implementation status and milestones
+- [Gap List](docs/GAPS.md) — known issues and improvement tracking
+- [Verification Log](docs/VERIFICATION_LOG.md) — test evidence
+- [Requirements](docs/REQUIREMENTS.md) — feature registry
+- [Agent Brief](docs/AGENT_BRIEF.md) — complete system specification
+- [Threat Model](docs/THREAT_MODEL.md) — security analysis
 
 ---
 
 ## Roadmap
 
-### Completed
+**Shipped**
 
-- Full OS control (29 tools across 7 modules)
-- AI reasoning with multi-layer cognition and streaming
-- WhatsApp voice/video calling by name
-- Media playback by name (local → Spotify → YouTube)
-- Web page reading aloud (HTML → speakable text)
-- Email intelligence with Gmail integration
-- Autonomous goal pursuit (G7 approved)
-- Financial operations with safeguards (G6 approved)
-- Learning engine (episode logging, consolidation, recipe learning)
-- Enterprise security (SQLCipher, Credential Manager, risk-classified policy)
-- Response caching with byte-size eviction
-- 515 tests across 66 files, 0 type errors, 0 lint errors
+- Full OS control (37 tools) with natural-language routing
+- Multi-model reasoning: router, failover and combined-intelligence ensemble
+- Voice-first interaction with streaming replies
+- WhatsApp voice/video calling by name; media playback by name
+- Web-page and email read-aloud with an untrusted-content boundary
+- Learning engine and weekly review
+- Encrypted storage, credential manager and risk-classified policy engine
 
-### Near Term
+**Next**
 
-- E2E tests for 10+ Windows applications
-- Full ML speaker verification (upgrade from degraded mode)
-- Real Gmail OAuth flow integration
-- PayPal live mode validation
-- Plugin system for custom tools
+- End-to-end tests across 10+ Windows applications
+- Full on-device speaker verification
+- Real Gmail OAuth flow; PayPal live-mode validation
+- Plugin system for community tools
 
-### Future
+**Later**
 
 - Linux and macOS support
-- Mobile companion app (React Native)
-- Multi-user support with profiles
-- Cloud sync with end-to-end encryption
-- Advanced analytics dashboard
+- Mobile companion (React Native)
+- Multi-user profiles and end-to-end encrypted sync
 
 ---
 
 ## Contributing
 
 ```bash
-# Create a feature branch
 git checkout -b feature/your-feature
-
-# Verify before committing
-npm run verify
-
-# Commit with conventional commits
+npm run verify          # must be green before committing
 git commit -m "feat: add your feature"
-
-# Push and create a PR
 git push origin feature/your-feature
 ```
+
+Commits follow conventional-commit prefixes. Never push to `main` directly.
 
 ---
 
 ## License
 
-This project is **UNLICENSED**. All rights reserved.
+This project is **UNLICENSED** — all rights reserved.
 
 ---
 
-## Author
+## About
 
-**Hassan**
+**Companion** is a Windows-first, voice-first automation assistant built on Electron, React and a framework-neutral TypeScript core. It is designed around two principles: **do real work on the PC**, and **be honest about it** — it only reports an action as done when the result was observed.
 
-- **GitHub**: [@hassan200503](https://github.com/hassan200503)
-- **LinkedIn**: [hassan-karungwa](https://www.linkedin.com/in/hassan-karungwa)
-- **Portfolio**: [hassan200503.github.io](https://hassan200503.github.io/)
+Maintained by **Hassan**.
+
+- **GitHub** — [@hassan200503](https://github.com/hassan200503)
+- **LinkedIn** — [hassan-karungwa](https://www.linkedin.com/in/hassan-karungwa)
+- **Portfolio** — [hassan200503.github.io](https://hassan200503.github.io/)
 
 ---
 
@@ -445,6 +391,6 @@ This project is **UNLICENSED**. All rights reserved.
 
 **Built for the future of personal computing**
 
-[⬆ Back to Top](#companion-ai--enterprise-grade-windows-automation-assistant)
+[⬆ Back to top](#companion--voice-first-windows-ai-companion)
 
 </div>

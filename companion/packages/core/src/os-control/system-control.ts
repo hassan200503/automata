@@ -150,6 +150,23 @@ export async function sleepSystem(signal?: AbortSignal): Promise<{ ok: boolean; 
   return { ok: true };
 }
 
+// ── Power: shutdown / restart / hibernate ──────────────────────────
+
+export type PowerAction = 'shutdown' | 'restart' | 'hibernate';
+
+export async function powerAction(action: PowerAction, delaySeconds = 0, signal?: AbortSignal): Promise<{ ok: boolean; action: PowerAction; error?: string }> {
+  const delay = Math.max(0, Math.min(600, Math.round(delaySeconds)));
+  const flag = action === 'shutdown' ? '/s' : action === 'restart' ? '/r' : '/h';
+  const script = action === 'hibernate'
+    ? 'shutdown.exe /h'
+    : `shutdown.exe ${flag} /t ${delay}`;
+  const result = await runPowerShell(script, signal);
+  if (result.code !== 0 && !result.stdout) {
+    return { ok: false, action, error: result.stderr.trim() || `exit ${result.code}` };
+  }
+  return { ok: true, action };
+}
+
 // ── Tool Definitions ───────────────────────────────────────────────
 
 export function createOsVolumeTool(): ToolDefinition<{ level: number }, { ok: boolean; level: number; error?: string }> {
@@ -266,6 +283,29 @@ export function createOsSleepTool(): ToolDefinition<Record<string, never>, { ok:
   };
 }
 
+export function createOsPowerTool(): ToolDefinition<{ action: PowerAction; delaySeconds?: number }, { ok: boolean; action: PowerAction; error?: string }> {
+  return {
+    name: 'os.power',
+    version: '1.0.0',
+    description: 'Shut down, restart or hibernate the PC. Requires confirmation.',
+    inputSchema: z.object({
+      action: z.enum(['shutdown', 'restart', 'hibernate']),
+      delaySeconds: z.number().int().min(0).max(600).optional(),
+    }),
+    outputSchema: z.object({ ok: z.boolean(), action: z.enum(['shutdown', 'restart', 'hibernate']), error: z.string().optional() }),
+    requiredPermissions: ['os.open'],
+    dataClassification: 'personal',
+    riskClass: 3,
+    reversible: false,
+    requiresConfirmation: true,
+    timeoutMs: 10_000,
+    cancellable: true,
+    audit: 'full',
+    platforms: ['all'],
+    execute: async (ctx, input) => powerAction(input.action, input.delaySeconds ?? 0, ctx.signal),
+  };
+}
+
 export function createSystemControlTools(): ToolDefinition<unknown, unknown>[] {
   return [
     createOsVolumeTool() as ToolDefinition<unknown, unknown>,
@@ -274,5 +314,6 @@ export function createSystemControlTools(): ToolDefinition<unknown, unknown>[] {
     createOsBrightnessTool() as ToolDefinition<unknown, unknown>,
     createOsLockScreenTool() as ToolDefinition<unknown, unknown>,
     createOsSleepTool() as ToolDefinition<unknown, unknown>,
+    createOsPowerTool() as ToolDefinition<unknown, unknown>,
   ];
 }

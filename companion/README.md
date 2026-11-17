@@ -75,10 +75,13 @@ All packages are linked together via npm workspaces.
 
 To create a new release:
 
-1. Update version in `apps/desktop/package.json`
-2. Run `npm run package` to build the installer
-3. Upload `apps/desktop/release/Companion-0.1.0-x64.exe` to GitHub Releases
-4. Update version badges in README
+1. Update the version in `package.json`, `apps/desktop/package.json`, `packages/core/package.json`, and the `@companion/core` dependency range.
+2. Run `npm run verify` to confirm lint, typecheck, tests and the build are green.
+3. Run `npm run package` to build the installer — it is written to `apps/desktop/release/`.
+4. Upload `apps/desktop/release/Companion-<version>-x64.exe` to GitHub Releases.
+5. Update the version and download badges in the root README.
+
+The current version is **0.3.0**, producing `Companion-0.3.0-x64.exe`.
 
 ---
 

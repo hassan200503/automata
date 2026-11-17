@@ -63,6 +63,7 @@ export default function App() {
   const [updateLabel, setUpdateLabel] = useState('');
   const [providers, setProviders] = useState<Provider[]>([]);
   const [stored, setStored] = useState<string[]>([]);
+  const [ensemble, setEnsemble] = useState<{ enabled: boolean; active: boolean; members: number }>({ enabled: false, active: false, members: 0 });
   const [selectedProvider, setSelectedProvider] = useState('gemini');
   const [apiKey, setApiKey] = useState('');
   const [discoveredModels, setDiscoveredModels] = useState<DiscoveredModel[]>([]);
@@ -135,6 +136,7 @@ export default function App() {
       const p = await window.companion.providersCatalog();
       setProviders(Array.isArray(p) ? p : []);
       setStored(await window.companion.credentialsList());
+      try { setEnsemble(await window.companion.providersEnsembleGet()); } catch { /* ignore */ }
       setOnboarding(await window.companion.onboardingGetState());
       const convs = await window.companion.chatListConversations();
       if (convs.length === 0) {
@@ -590,6 +592,7 @@ export default function App() {
       if (!result?.valid) throw new Error(result?.error || 'Could not save key');
       const nextStored = await window.companion.credentialsList();
       setStored(nextStored);
+      try { setEnsemble(await window.companion.providersEnsembleGet()); } catch { /* ignore */ }
       setApiKey('');
       setValidation(result);
       setStatus(`Saved ${selected.displayName}. ${result.model ? 'Default model: ' + result.model : ''}`);
@@ -615,6 +618,7 @@ export default function App() {
     try {
       await window.companion.credentialsDelete(id);
       setStored(await window.companion.credentialsList());
+      try { setEnsemble(await window.companion.providersEnsembleGet()); } catch { /* ignore */ }
       setStatus(`Removed ${id}.`);
     } catch (e) {
       setError(String(e));
@@ -633,6 +637,7 @@ export default function App() {
       );
       if (!result?.valid) throw new Error(result?.error || 'Could not add custom provider');
       setStored(await window.companion.credentialsList());
+      try { setEnsemble(await window.companion.providersEnsembleGet()); } catch { /* ignore */ }
       setCustom({ name: '', baseUrl: '', model: '', apiKey: '' });
       setStatus(`Connected ${result.id ? 'custom provider' : 'provider'}. It will participate in automatic failover.`);
     } catch (e) {
@@ -1648,6 +1653,15 @@ export default function App() {
               setUpdateLabel(infoUpdate?.message || infoUpdate?.status || JSON.stringify(infoUpdate));
             }}
             updateLabel={updateLabel}
+            ensemble={ensemble}
+            onToggleEnsemble={async (enabled) => {
+              try {
+                setEnsemble(await window.companion.providersEnsembleSet(enabled));
+                setStatus(enabled ? 'Combined intelligence enabled.' : 'Combined intelligence disabled.');
+              } catch (e) {
+                setError(String(e));
+              }
+            }}
           >
             <div className="provider-detail">
               <p className="muted">Connected: {stored.length ? stored.join(', ') : 'none yet'}. Use Setup to add keys.</p>

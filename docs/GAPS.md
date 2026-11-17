@@ -1,7 +1,16 @@
 # Gap List (v3 brief)
 
 Baseline: 2026-10-29. Graded against `docs/REQUIREMENTS.md`.
-Latest verification: 2026-11-16 — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 66 test files / 515 tests, and both builds. See `docs/PROJECT_STATE.md` for the production readiness sprint.
+Latest verification: 2026-11-17 — `npm run verify` from `companion/` passed 0 lint errors, clean TypeScript, 67 test files / 539 tests, and both builds. See `docs/PROJECT_STATE.md` for the combined multi-model answer path, premium UI refresh and added OS operations.
+
+## 2026-11-17 Update — Combined intelligence + premium UI + OS gaps
+
+- **Ensemble router** (`packages/core/src/providers/ensemble.ts`): fans a request out to every connected provider in parallel and returns the strongest answer (best-of default; majority/fastest options). Wired into the desktop main process behind a persisted toggle (Settings → Providers). This adds a "combine the models" answer path; individual providers still handle streaming and failover. Not a tracked gap below.
+- **Premium UI refresh** (renderer `styles.css`): near-black token palette, refined surfaces, focus states and on-brand scrollbars. Presentation only.
+- **OS operation gaps closed** (previously absent from the tool set): `os.power` (shutdown/restart/hibernate, Class 3 + confirmation), `os.moveWindow`, `os.resizeWindow`, plus NL patterns. PowerPoint/document generation and UIPI integrity probing remain open (see GAP-04 and the fix order).
+- No gap below changes status from this work.
+
+
 Status values: `FIXED` means code + verification exist for the stated slice; `PARTIAL` means some behavior is present but the acceptance check is not fully met; `OPEN` means no implementation.
 
 ## 2026-11-16 Update — Full OS Control
@@ -52,6 +61,7 @@ The following capabilities were added, closing several gaps around OS automation
 | GAP-18 | Clipboard may not be restored after paste | O7: no paste path exists, so not yet testable. | UIA | OPEN |
 | GAP-19 | No kill tests or soak | SC12 partial. | After feature work. | OPEN |
 | GAP-20 | Six ESLint warnings for unused disable directives | Removed; `npm run verify` now reports 0 warnings. | None. | FIXED |
+| GAP-25 | Combined-intelligence ensemble not exercised against live providers | `EnsembleProvider` has 17 unit tests and is wired through IPC + Settings, but no multi-provider live run is recorded. | Live provider keys | OPEN |
 
 ## Low
 
@@ -60,6 +70,7 @@ The following capabilities were added, closing several gaps around OS automation
 | GAP-21 | Installer unsigned and not clean-machine tested | Rebuilt NSIS artifact `Companion-0.1.0-x64.exe` (122,837,891 bytes, SHA-256 `32E04C31...43B8E8`, V-83), prior unpacked runtime/helper smoke passed (V-77), but signing and clean-machine installation/uninstall/SmartScreen checks remain open. | Owner/VM/G4 | OPEN |
 | GAP-22 | CI has not run on GitHub | `main` pushed (`9516104`+); remote CI status not yet confirmed. | Owner/CI | OPEN |
 | GAP-23 | No third-party notices in packaged app | PROJECT_STATE known defects. | Release work | OPEN |
+| GAP-26 | New power/window-geometry OS tools unverified on Windows | `os.power`, `os.moveWindow`, `os.resizeWindow` have schema tests but were not run on a real Windows host; real shutdown and `SetWindowPos` effects are unobserved. | Windows host | OPEN |
 
 ## Fix order
 
