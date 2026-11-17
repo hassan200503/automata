@@ -27,6 +27,6 @@
   "engines": {
     "node": ">=22.5.0"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true
 }

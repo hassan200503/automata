@@ -7,6 +7,8 @@ Baseline evidence: `docs/VERIFICATION_LOG.md` section 14. Safety-slice evidence:
 
 Note (2026-11-17): the combined multi-model answer path, the renderer UI refresh and the added OS operations (`os.power`, `os.moveWindow`, `os.resizeWindow`) added on 2026-11-17 do not change any SC row below; `npm run verify` from `companion/` passed with 67 files / 539 tests, 0 lint errors and 0 type errors. No SC row was re-graded in this pass.
 
+Note (2026-11-17, v0.4.0): the renderer was rebuilt into the voice-first shell (rail · top bar · stage), the application icon became a real PNG + multi-size ICO, and the licence changed from `UNLICENSED` to MIT. None of these change an SC row; the licence change does resolve the open licensing dependency noted for a possible no-cost signing route (see `docs/DECISIONS/ADR-0001-stack.md`).
+
 ## Success criteria
 
 | ID | Acceptance check | Status | Evidence |

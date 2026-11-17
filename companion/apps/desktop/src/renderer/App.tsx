@@ -684,6 +684,19 @@ export default function App() {
     }
   }
 
+  async function deleteConversation(id: string) {
+    try {
+      await window.companion.chatDeleteConversation(id);
+      setConversations(await window.companion.chatListConversations());
+      if (activeConvRef.current === id) {
+        setActiveConv(null);
+        setMessages([]);
+      }
+    } catch (e) {
+      setError(String(e));
+    }
+  }
+
   async function speakReply(content: string): Promise<void> {
     if (mutedRef.current) return;
     const safeContent = normalizeSpeech(content, { speakSafe: true, maxSentences: 3 });
@@ -1310,55 +1323,114 @@ export default function App() {
 
 
   return (
-    <div className="app-shell enterprise">
-      <aside className={`sidebar ${navOpen ? '' : 'collapsed'}`}>
-        <div className="brand">
-          <span className="brand-mark">C</span>
-          <div>
-            <h2>Companion</h2>
-            <p>Voice-first, on your PC</p>
+    <div className="app">
+      <aside className={`rail ${navOpen ? 'open' : ''}`} aria-label="Primary">
+        <div className="rail-brand">
+          <span className="rail-mark">C</span>
+          <div className="rail-brand-text">
+            <strong>Companion</strong>
+            <span>Voice-first, on your PC</span>
           </div>
         </div>
 
-        <nav className="nav" aria-label="Primary">
-          <button className={tab === 'chat' ? 'nav-item active' : 'nav-item'} onClick={() => { setTab('chat'); setNavOpen(false); }}>
+        <nav className="rail-nav">
+          <button className={tab === 'chat' ? 'rail-link active' : 'rail-link'} onClick={() => { setTab('chat'); setNavOpen(false); }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z" /></svg>
             Talk
           </button>
-          <button className={tab === 'setup' ? 'nav-item active' : 'nav-item'} onClick={() => { setTab('setup'); setNavOpen(false); }}>
+          <button className={tab === 'setup' ? 'rail-link active' : 'rail-link'} onClick={() => { setTab('setup'); setNavOpen(false); }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16" /><circle cx="9" cy="6" r="2" /><circle cx="15" cy="12" r="2" /><circle cx="8" cy="18" r="2" /></svg>
             Setup
           </button>
-          <button className={tab === 'settings' ? 'nav-item active' : 'nav-item'} onClick={() => { setTab('settings'); setNavOpen(false); void refreshProposed(); void refreshPermissions(); }}>
+          <button className={tab === 'settings' ? 'rail-link active' : 'rail-link'} onClick={() => { setTab('settings'); setNavOpen(false); void refreshProposed(); void refreshPermissions(); }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" /></svg>
             Settings
           </button>
         </nav>
 
-        {info && (
-          <div className="sidebar-card">
-            <div className="eyebrow">Runtime</div>
-            <div>Electron {info.electronVersion}</div>
-            <div>v{info.appVersion}</div>
-          </div>
-        )}
+        <div className="rail-history">
+          <button className="newchat" onClick={() => { void newConversation(); setTab('chat'); setNavOpen(false); }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+            New chat
+          </button>
+          {conversations.length > 0 && (
+            <div className="conv-list">
+              {conversations.map((c) => (
+                <button
+                  key={c.id}
+                  className={c.id === activeConv ? 'conv active' : 'conv'}
+                  title={c.title || 'Conversation'}
+                  onClick={() => { void loadConversation(c.id); setTab('chat'); setNavOpen(false); }}
+                >
+                  <span className="conv-title">{c.title || 'Conversation'}</span>
+                  <span
+                    className="conv-del"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Delete ${c.title || 'conversation'}`}
+                    onClick={(event) => { event.stopPropagation(); void deleteConversation(c.id); }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        void deleteConversation(c.id);
+                      }
+                    }}
+                  >
+                    ×
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {stored.length > 0 && (
-          <div className="sidebar-card">
-            <div className="eyebrow">Connected</div>
-            {stored.map((id) => (
-              <div key={id} className="provider-pill">{id}</div>
-            ))}
-          </div>
-        )}
+        <div className="rail-spacer" />
 
-        <div className="sidebar-card sidebar-foot">
-          <div className="eyebrow">Honesty</div>
-          <p className="muted">I only claim OS actions I can observe — opens, plays, typed chats, accepted mail.</p>
+        <div className="rail-meta">
+          {info && (
+            <div className="rail-card">
+              <div className="eyebrow">Runtime</div>
+              <div>Electron {info.electronVersion}</div>
+              <div>v{info.appVersion}</div>
+            </div>
+          )}
+          {stored.length > 0 && (
+            <div className="rail-card">
+              <div className="eyebrow">Connected</div>
+              <div>{stored.map((id) => (<span key={id} className="tag">{id}</span>))}</div>
+            </div>
+          )}
+          <div className="rail-card">
+            <div className="eyebrow">Honesty</div>
+            <p>I only claim OS actions I can observe — opens, plays, typed chats, accepted mail.</p>
+          </div>
         </div>
       </aside>
 
-      <main className="main">
-        <button className="mobile-nav-toggle ghost" onClick={() => setNavOpen((value) => !value)}>
-          {navOpen ? 'Hide menu' : 'Menu'}
-        </button>
+      <main className="stage">
+        <div className="topbar">
+          <button className="icon-btn mobile-only" aria-label="Toggle menu" onClick={() => setNavOpen((value) => !value)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+          </button>
+          <div className="topbar-title">
+            {tab === 'chat' ? 'Talk' : tab === 'setup' ? 'Setup' : 'Settings'}
+            <small>
+              {tab === 'chat'
+                ? voiceMode ? 'Listening live' : 'Speak or type — I act on this PC'
+                : tab === 'setup'
+                  ? stored.length > 0 ? `${stored.length} provider${stored.length > 1 ? 's' : ''} connected` : 'Connect a provider to begin'
+                  : 'Voice, privacy, providers and memory'}
+            </small>
+          </div>
+          <div className="topbar-actions">
+            {voiceMode && <span className="pill pill-live">Live</span>}
+            {stored.length > 0 && <span className="pill">{stored.length} provider{stored.length > 1 ? 's' : ''}</span>}
+          </div>
+        </div>
+
+        <div className="stage-scroll">
+          <div className="container">
         {error && <div className="banner error">{error}</div>}
         {status && <div className="banner success">{status}</div>}
         <AlertsRail
@@ -1368,7 +1440,7 @@ export default function App() {
         />
 
         {tab === 'setup' && (
-          <div className="content-grid">
+          <div className="stack">
             <OnboardingHero
               guideActive={guideActive}
               voiceGuide={voiceGuide}
@@ -1389,7 +1461,7 @@ export default function App() {
               onHearAgain={() => void speakReply(guidePrompt || getVoiceGuideStep(voiceGuide.currentStep).prompt)}
             />
 
-            <section className="card">
+            <section className="panel">
               <div className="section-head">
                 <h3>Onboarding state</h3>
                 <span className="muted">
@@ -1418,7 +1490,7 @@ export default function App() {
               </div>
             </section>
 
-            <section className="card">
+            <section className="panel">
               <div className="section-head">
                 <h3>Connect an AI provider</h3>
                 <span className="muted">Connect one or more providers for automatic failover</span>
@@ -1450,7 +1522,7 @@ export default function App() {
                   <ol className="guide">
                     {selected.guideSteps.map((s, i) => <li key={i}>{s}</li>)}
                   </ol>
-                  <label className="field-label" htmlFor="apiKey">API key{selected.keyPrefixHint ? ` (starts with ${selected.keyPrefixHint})` : ''}</label>
+                  <label className="field" htmlFor="apiKey">API key{selected.keyPrefixHint ? ` (starts with ${selected.keyPrefixHint})` : ''}</label>
                   <input
                     id="apiKey"
                     type="password"
@@ -1464,7 +1536,7 @@ export default function App() {
                     <button onClick={saveKey} disabled={busy || !apiKey.trim()}>Save key</button>
                   </div>
                   {(discoveredModels.length > 0 || selectedModel) && (
-                    <label className="field-label" htmlFor="modelSelect">
+                    <label className="field" htmlFor="modelSelect">
                       Model
                       <select id="modelSelect" value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
                         {discoveredModels.map((model) => (
@@ -1485,7 +1557,7 @@ export default function App() {
               )}
             </section>
 
-            <section className="card">
+            <section className="panel">
               <div className="section-head">
                 <h3>Add another provider</h3>
                 <button className="ghost" onClick={() => setShowCustomProvider((value) => !value)}>{showCustomProvider ? 'Hide form' : 'Create new provider'}</button>
@@ -1502,7 +1574,7 @@ export default function App() {
               </>}
             </section>
 
-            <section className="card">
+            <section className="panel">
               <div className="section-head">
                 <h3>Saved credentials</h3>
                 <span className="muted">{stored.length} provider(s)</span>
@@ -1524,7 +1596,7 @@ export default function App() {
         )}
 
         {tab === 'chat' && (
-          <div className="talk-stage">
+          <div className="chat-view">
             <VoiceDock
               voiceMode={voiceMode}
               speaking={speaking}
@@ -1548,20 +1620,18 @@ export default function App() {
               onOpenMicSettings={() => void window.companion.openSettings('ms-settings:privacy-microphone')}
             />
             <ChatStage
-              conversations={conversations}
-              activeConv={activeConv}
               messages={messages}
               draft={draft}
               busy={busy}
+              voiceMode={voiceMode}
+              speaking={speaking}
+              voiceState={voiceState}
+              muted={muted}
+              interimTranscript={interimTranscript}
               onDraftChange={setDraft}
               onSend={() => void sendDraft()}
-              onNewConversation={() => void newConversation()}
-              onLoadConversation={(id) => void loadConversation(id)}
-              onDeleteConversation={(id) => void (async () => {
-                await window.companion.chatDeleteConversation(id);
-                setConversations(await window.companion.chatListConversations());
-                if (activeConv === id) { setActiveConv(null); setMessages([]); }
-              })()}
+              onSuggestion={(text) => void sendMessage(text)}
+              onToggleVoice={() => (voiceMode ? stopListening() : void startListening())}
             />
             {pendingAction && (
               <ConfirmModal
@@ -1680,6 +1750,8 @@ export default function App() {
             </div>
           </SettingsShell>
         )}
+          </div>
+        </div>
       </main>
     </div>
   );

@@ -97,12 +97,12 @@ const SECTIONS: Array<{ id: Props['section']; label: string }> = [
 
 export function SettingsShell(props: Props) {
   return (
-    <div className="settings-shell">
-      <nav className="settings-nav" aria-label="Settings">
+    <div className="settings">
+      <nav className="settings-rail" aria-label="Settings">
         {SECTIONS.map((s) => (
           <button
             key={s.id}
-            className={props.section === s.id ? 'nav-item active' : 'nav-item'}
+            className={props.section === s.id ? 'rail-link active' : 'rail-link'}
             onClick={() => props.onSection(s.id)}
           >
             {s.label}
@@ -111,7 +111,7 @@ export function SettingsShell(props: Props) {
       </nav>
       <div className="settings-body">
         {props.section === 'voice' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>Voice</h3>
             <p className="muted">Neural Windows voices are preferred when available. Conversation TTS uses WinRT SSML.</p>
             <select aria-label="Voice" value={props.voiceSettings?.voice || ''} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, voice: e.target.value })}>
@@ -120,10 +120,10 @@ export function SettingsShell(props: Props) {
                 <option key={voice.id || voice.name} value={voice.name}>{voice.name} ({voice.language})</option>
               ))}
             </select>
-            <label className="field-label">Rate
+            <label className="field">Rate
               <input type="range" min={-10} max={10} value={Number(props.voiceSettings?.rate ?? 0)} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, rate: Number(e.target.value) })} />
             </label>
-            <label className="field-label">Pitch
+            <label className="field">Pitch
               <input type="range" min={-10} max={10} value={Number(props.voiceSettings?.pitch ?? 0)} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, pitch: Number(e.target.value) })} />
             </label>
             <label className="checkbox-row">
@@ -142,10 +142,10 @@ export function SettingsShell(props: Props) {
               <input type="checkbox" checked={props.voiceSettings?.proactiveQuestions !== false} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, proactiveQuestions: e.target.checked })} />
               Ask me questions by voice
             </label>
-            <label className="field-label">Quiet hours start
+            <label className="field">Quiet hours start
               <input type="time" value={props.voiceSettings?.quietHours?.start ?? ''} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, quietHours: e.target.value ? { start: e.target.value, end: props.voiceSettings?.quietHours?.end || '07:00' } : undefined })} />
             </label>
-            <label className="field-label">Quiet hours end
+            <label className="field">Quiet hours end
               <input type="time" value={props.voiceSettings?.quietHours?.end ?? ''} onChange={(e) => props.onVoiceSettings({ ...props.voiceSettings, quietHours: e.target.value ? { start: props.voiceSettings?.quietHours?.start || '22:00', end: e.target.value } : undefined })} />
             </label>
             <div className="actions">
@@ -156,7 +156,7 @@ export function SettingsShell(props: Props) {
         )}
 
         {props.section === 'persona' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>Persona</h3>
             <div className="muted">{props.persona?.calibration?.completedAt ? 'Calibrated' : props.calibrationQuestion ? 'Setup in progress' : 'Not calibrated yet'}</div>
             <input placeholder="Your name" value={props.persona?.profile?.ownerName || ''} onChange={(e) => props.onPersona({ ...props.persona, profile: { ...props.persona?.profile, ownerName: e.target.value } })} />
@@ -173,7 +173,7 @@ export function SettingsShell(props: Props) {
         )}
 
         {props.section === 'privacy' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>Privacy & permissions</h3>
             <p className="muted">WhatsApp messaging and phone calls stay off until you grant them. Class‑3 actions still need confirmation every time.</p>
             {props.grantable.length === 0 ? (
@@ -195,19 +195,19 @@ export function SettingsShell(props: Props) {
         )}
 
         {props.section === 'email' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>Email (IMAP)</h3>
             <p className="muted">App password is stored in Windows Credential Manager. Companion never invents inbox contents when disconnected.</p>
-            <label className="field-label">Host
+            <label className="field">Host
               <input value={props.email.host} onChange={(e) => props.onEmail({ ...props.email, host: e.target.value })} placeholder="imap.gmail.com" />
             </label>
-            <label className="field-label">Port
+            <label className="field">Port
               <input type="number" value={props.email.port} onChange={(e) => props.onEmail({ ...props.email, port: Number(e.target.value) || 993 })} />
             </label>
-            <label className="field-label">User
+            <label className="field">User
               <input value={props.email.user} onChange={(e) => props.onEmail({ ...props.email, user: e.target.value })} placeholder="you@example.com" />
             </label>
-            <label className="field-label">App password
+            <label className="field">App password
               <input type="password" value={props.email.password} onChange={(e) => props.onEmail({ ...props.email, password: e.target.value })} placeholder={props.email.configured ? '•••••••• (leave blank to keep)' : 'App password'} />
             </label>
             <label className="checkbox-row">
@@ -224,22 +224,22 @@ export function SettingsShell(props: Props) {
         )}
 
         {props.section === 'payments' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>PayPal Wallet</h3>
             <p className="muted">PayPal credentials are stored in Windows Credential Manager. Configure your wallet for autonomous financial operations.</p>
-            <label className="field-label">Client ID
+            <label className="field">Client ID
               <input value={props.paypal.clientId} onChange={(e) => props.onPaypal({ ...props.paypal, clientId: e.target.value })} placeholder="PayPal Client ID" />
             </label>
-            <label className="field-label">Client Secret
+            <label className="field">Client Secret
               <input type="password" value={props.paypal.clientSecret} onChange={(e) => props.onPaypal({ ...props.paypal, clientSecret: e.target.value })} placeholder={props.paypal.configured ? '•••••••• (leave blank to keep)' : 'PayPal Client Secret'} />
             </label>
-            <label className="field-label">Mode
+            <label className="field">Mode
               <select value={props.paypal.mode} onChange={(e) => props.onPaypal({ ...props.paypal, mode: e.target.value as 'sandbox' | 'live' })}>
                 <option value="sandbox">Sandbox (testing)</option>
                 <option value="live">Live (production)</option>
               </select>
             </label>
-            <label className="field-label">Wallet Email
+            <label className="field">Wallet Email
               <input value={props.paypal.email} onChange={(e) => props.onPaypal({ ...props.paypal, email: e.target.value })} placeholder="tech03082005082005@gmail.com" />
             </label>
             {props.paypalStatus && <p className="muted">{props.paypalStatus}</p>}
@@ -252,10 +252,10 @@ export function SettingsShell(props: Props) {
         )}
 
         {props.section === 'providers' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>Providers</h3>
             <p className="muted">Connect Gemini or another provider from Setup, then return here for status.</p>
-            <div className="ensemble-card">
+            <div className="ensemble">
               <div className="ensemble-head">
                 <div>
                   <strong>Combined intelligence</strong>
@@ -285,7 +285,7 @@ export function SettingsShell(props: Props) {
         )}
 
         {props.section === 'memory' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>Memory & owner</h3>
             <MemoryInbox
               items={props.proposed}
@@ -303,7 +303,7 @@ export function SettingsShell(props: Props) {
         )}
 
         {props.section === 'data' && (
-          <section className="settings-panel">
+          <section className="panel">
             <h3>Data</h3>
             <p className="muted">Export or erase local companion data. Audit detail stays here — not on the Talk surface.</p>
             <div className="actions">

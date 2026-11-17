@@ -3,7 +3,36 @@
 Last updated: 2026-11-17
 Brief: `docs/AGENT_BRIEF.md` (v3 master brief, adopted 2026-10-29). The previous handoff brief is archived at `docs/archive/AGENT_BRIEF-v1-handoff.md`.
 Current milestone: M2 Autonomous Capabilities Complete + Full OS Control + Production Hardening
-Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling) plus a combined multi-model answer path and a premium dark UI refresh. Release **v0.3.0**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+Status: Full OS control (volume, brightness, media keys, lock, sleep, power, window management incl. move/resize, text input, clipboard, file ops, web reading, WhatsApp calling), a combined multi-model answer path, and a rebuilt voice-first UI. Release **v0.4.0**, licensed **MIT**. Latest verify: 67 files / 539 tests, 0 type errors, 0 lint errors, build succeeds.
+
+## UI Rebuild + Icon + MIT Licence — v0.4.0 (2026-11-17)
+
+**Renderer rebuilt (voice-first shell):**
+- ✅ `App.tsx` shell replaced with `.app` (grid: 268px rail + fluid stage) → `.rail` (brand mark, Talk · Setup · Settings nav, a **New chat** action, a conversation list with per-item delete, and runtime / connected / honesty cards) + `.stage` (contextual `.topbar` with live status pills, then `.stage-scroll` → `.container`).
+- ✅ `ChatStage` rewritten: an empty-state hero with an animated orb and five one-tap suggestion chips, message bubbles, and a sticky `.composer` (Enter to send, Shift+Enter for a new line, mic + send buttons).
+- ✅ `VoiceDock`, `OnboardingHero`, `AlertsRail`, `ConfirmModal` and `SettingsShell` restyled onto the shared token system; Setup uses `.stack` + `.panel`, Settings a section rail (Voice · Persona · Privacy · Email · Payments · Providers · Memory · Data) over its panels.
+- ✅ New design tokens in `styles.css`: near-black `#09090b` canvas, layered surfaces, hairline borders, a single white/silver accent with mint `--live` and amber `--warm` states, shared radius/shadow tokens, and a responsive tree that collapses the rail to an overlay menu at ≤960 px.
+- ✅ Fixed a layout defect found by DOM measurement: `.app` had a single implicit grid row that grew to content height, pushing `.composer` below the fold. Added `grid-template-rows: minmax(0, 1fr)` and `margin-top: auto` on `.composer`; re-verified that the composer now sits inside the viewport.
+- ✅ Runtime effect is presentation and navigation only; no tool, policy, provider or storage behaviour changed.
+
+**Application icon:**
+- ✅ `resources/icon.png` was an SVG file carrying a `.png` extension; the vector source was rasterised through the Electron/Chromium renderer into a real 512×512 RGBA PNG.
+- ✅ Added `resources/icon.ico` — a 7-size ICO (16/24/32/48/64/128/256) built from that PNG.
+- ✅ `apps/desktop/package.json`: `win.icon`, `nsis.installerIcon` and `nsis.uninstallerIcon` now point at the `.ico`; the packaged `files` list ships all three icon assets. The BrowserWindow sets the PNG as its window icon.
+
+**Licence + release metadata:**
+- ✅ Added `LICENSE` (MIT, © 2026 Hassan Tsuma) at the repository root.
+- ✅ `license` set to `MIT` in `companion/package.json`, `apps/desktop/package.json`, `packages/core/package.json` and the root `package.json` (was `UNLICENSED`); the `apps/desktop` author is now the owner.
+- ✅ Version bumped **0.3.0 → 0.4.0** across the three workspace manifests (including the `@companion/core` range) and the lockfile re-synced.
+
+**Docs + screenshots:**
+- ✅ Root `README.md` rewritten around the new UI: app icon, MIT badge, a v0.4.0 "What's New" section, refreshed screenshots (now including `talk-hero.png`) and corrected project-size metrics.
+- ✅ `companion/README.md` release section → 0.4.0 with an MIT note; `PERSONAL_README.md` Companion highlight updated.
+- ✅ `docs/screenshots/` regenerated from the shipped renderer (5 PNGs).
+
+**Test Results:** 67 files / 539 tests passing, 0 type errors, 0 lint errors, both builds succeed (CSS 17.31 kB, JS 301.23 kB).
+
+**Caveats:** the screenshots were captured from a stubbed-preload harness (the real main process needs Windows native modules), and the NSIS installer was not rebuilt, so packaging-time icon rendering and the exe/taskbar icon remain unverified.
 
 ## Multi-Model Combine + Premium UI (2026-11-17)
 
